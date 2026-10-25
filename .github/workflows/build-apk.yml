@@ -31,14 +31,24 @@ jobs:
           grep -q showWhenLocked $M || sed -i 's#<activity#<activity android:showWhenLocked="true" android:turnScreenOn="true"#' $M
       - name: Let Zen-mode reminders open over the lock screen
         run: |
-          F=$(find node_modules/@capacitor/local-notifications/android -name LocalNotificationManager.java | head -1)
-          if [ -n "$F" ] && grep -q 'mBuilder.setContentIntent(pendingIntent);' "$F"; then
-            cp "$F" "$F.orig"
-            sed -i 's#mBuilder.setContentIntent(pendingIntent);#&\n      if (request.getExtra() != null \&\& request.getExtra().optBoolean("zen", false)) { mBuilder.setFullScreenIntent(pendingIntent, true); }#' "$F"
-            echo "patched=$F" >> $GITHUB_ENV
-          else
-            echo "::warning::Lock-screen patch was not applied (plugin code is different)"
-          fi
+          python3 - <<'PY'
+          import glob, os, shutil
+          fs = glob.glob('node_modules/@capacitor/local-notifications/android/**/LocalNotificationManager.java', recursive=True)
+          if not fs:
+              print('::warning::Lock-screen patch not applied (file not found)')
+              raise SystemExit
+          f = os.path.abspath(fs[0])
+          s = open(f).read()
+          a = 'mBuilder.setContentIntent(pendingIntent);'
+          if a not in s:
+              print('::warning::Lock-screen patch not applied (plugin code is different)')
+              raise SystemExit
+          shutil.copy(f, f + '.orig')
+          add = ' if (localNotification.getSource() != null && localNotification.getSource().replace(" ", "").contains("\\"zen\\":true")) { mBuilder.setFullScreenIntent(pendingIntent, true); }'
+          open(f, 'w').write(s.replace(a, a + add, 1))
+          open(os.environ['GITHUB_ENV'], 'a').write('patched=' + f + '\n')
+          print('Lock-screen patch applied to', f)
+          PY
       - run: npx cap sync android
       - name: Build
         run: |
