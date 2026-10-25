@@ -60,6 +60,7 @@ input[type=text],input[type=time],input[type=number]{width:100%;font:inherit;col
 .sq.on{outline:3px solid var(--acc);outline-offset:2px}
 .pfb{background:var(--acc2);color:var(--ink);border:1.5px solid var(--acc);padding:11px 18px;border-radius:14px;font-size:15px;max-width:58%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .set input{flex:1;min-width:0}
+.set .btn{padding:9px 12px}
 .toast .hd .dn{margin-left:auto;padding:6px 12px;font-size:13px}.toast .dn+.x{margin-left:4px}
 #zen{position:fixed;inset:0;z-index:50;background:var(--bg);display:grid;place-items:center;padding:24px;padding-top:calc(24px + env(safe-area-inset-top,0px))}
 .zc{display:flex;flex-direction:column;align-items:center;gap:18px;text-align:center;width:100%;max-width:420px}
@@ -103,7 +104,9 @@ if(!S.profiles){S.profiles=[{id:'p1',name:'Default',tasks:S.tasks}];S.pid='p1'}
 delete S.tasks;
 const prof=id=>S.profiles.find(p=>p.id===id)||S.profiles[0];
 const own=id=>S.profiles.find(p=>p.tasks.some(t=>t.id===id));
-const ess=()=>S.pid===S.profiles[0].id?[]:S.profiles[0].tasks.filter(t=>t.ess);
+const defId=()=>S.profiles.some(p=>p.id===S.def)?S.def:S.profiles[0].id;
+const defP=()=>prof(defId());
+const ess=()=>S.pid===defId()?[]:defP().tasks.filter(t=>t.ess);
 const live=()=>S.tasks.concat(ess());
 Object.defineProperty(S,'tasks',{get(){return prof(S.pid).tasks},set(v){prof(S.pid).tasks=v},enumerable:false,configurable:true});
 const LK='nudge-log';let LOG={first:Date.now(),done:{},days:{},sw:[],sessions:[]};
@@ -186,8 +189,8 @@ function render(){
  <div class="top"><div><h1>${g}${nm}</h1><p>Gentle nudges, only when you want them.</p></div><button class="av" id="prof">${S.profile.emoji}</button></div>
  <div class="card awake"><div><b>${S.awake?'You’re awake ☀️':'Sleeping 🌙'}</b><small>${S.awake?'Since '+new Date(S.awake).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'}):'Wake-based reminders are paused'}</small></div><button class="btn" id="wk">${S.awake?'Go to sleep':'I’m awake'}</button></div>
  <div class="sec"><h2>Your reminders</h2><button class="btn pfb" id="pf">📂 ${esc(prof(S.pid).name)} ▾</button></div>
- ${S.tasks.length?S.tasks.map(t=>`<div class="card task ${t.on?'':'off'}" data-id="${t.id}"><div class="ic">${t.emoji||'🔔'}</div><div class="tx"><b>${t.ess?'⭐ ':''}${esc(t.title)}</b><small>Every ${ivTxt(t.iv)} · ${t.mode==='wake'?'while awake':f12(t.start)+'–'+f12(t.end)}</small><small data-next="${t.id}">${nextLabel(t)}</small></div><button class="sw ${t.on?'on':''}" data-sw="${t.id}" aria-label="Toggle"></button></div>`).join(''):'<div class="empty">No reminders yet. Tap “New reminder” to add one.</div>'}
- ${ess().length?`<div class="sec"><h2>⭐ Essential</h2><span class="hint">From ${esc(S.profiles[0].name)}</span></div>${ess().map(card).join('')}`:''}
+ ${S.tasks.length?S.tasks.map(t=>`<div class="card task ${t.on?'':'off'}" data-id="${t.id}"><div class="ic">${t.emoji||'🔔'}</div><div class="tx"><b>${t.ess&&own(t.id)===defP()?'⭐ ':''}${esc(t.title)}</b><small>Every ${ivTxt(t.iv)} · ${t.mode==='wake'?'while awake':f12(t.start)+'–'+f12(t.end)}</small><small data-next="${t.id}">${nextLabel(t)}</small></div><button class="sw ${t.on?'on':''}" data-sw="${t.id}" aria-label="Toggle"></button></div>`).join(''):'<div class="empty">No reminders yet. Tap “New reminder” to add one.</div>'}
+ ${ess().length?`<div class="sec"><h2>⭐ Essential</h2><span class="hint">From ${esc(defP().name)}</span></div>${ess().map(card).join('')}`:''}
  ${S.heat?heatHTML():''}
  <button class="fab" id="add">＋ New reminder</button>`;
  $('#prof').onclick=openSettings;$('#pf').onclick=openProfiles;if(S.heat)bindHeat();
@@ -202,7 +205,7 @@ function openTask(id){if(S.tasks.some(t=>t.id===id))openEditor(id)}
 function openEditor(id){
  const ex=live().find(t=>t.id===id);
  const d=ex?{...ex}:{title:'',mode:'window',start:'08:00',end:'22:00',iv:30,emoji:'',on:true};
- const used=live().filter(t=>t.id!==id&&t.emoji).map(t=>t.emoji);let open=false;const canEss=ex?own(id)===S.profiles[0]:S.pid===S.profiles[0].id;
+ const used=live().filter(t=>t.id!==id&&t.emoji).map(t=>t.emoji);let open=false;const canEss=ex?own(id)===defP():S.pid===defId();
  const draw=()=>{sheet(`<h2>${ex?'Edit reminder':'New reminder'}</h2>
  <label>Reminder</label><div class="row2"><button class="em pick" id="ep" type="button">${d.emoji||'😎'}</button><input type="text" id="ti" maxlength="40" placeholder="e.g. Drink water" value="${esc(d.title)}"></div>${open?`<div class="grid dd"><button class="em" data-e="">✕</button>${EMOJIS.map(e=>`<button class="em ${d.emoji===e?'on':''}" data-e="${e}" ${used.includes(e)?'disabled':''}>${e}</button>`).join('')}</div>`:''}
  <label>When</label><div class="seg"><button data-m="window" class="${d.mode==='window'?'on':''}">Time window</button><button data-m="wake" class="${d.mode==='wake'?'on':''}">When I’m awake</button></div>
@@ -260,8 +263,8 @@ function occs(t,from,to){const iv=t.iv*6e4,lo=Math.max(from,t.c||LOG.first),o=[]
 /* a reminder is missed when its next one is due and Done was never pressed */
 function calc(ms){const to=nday(ms),now=Date.now(),r={};
  S.profiles.forEach(p=>p.tasks.forEach(t=>{if(!t.on)return;
-  const xs=occs(t,ms,to).filter(x=>x<=now&&(activeAt(x)===p.id||(t.ess&&p.id===S.profiles[0].id)));
-  if(xs.length)r[t.id]={n:t.title,e:t.emoji,p:p.id,s:t.ess?1:0,i:xs.map(x=>[x,LOG.done[t.id+'@'+Math.round(x/6e4)]?1:now>=x+t.iv*6e4?2:0])}}));
+  const xs=occs(t,ms,to).filter(x=>x<=now&&(activeAt(x)===p.id||(t.ess&&p.id===defId())));
+  if(xs.length)r[t.id]={n:t.title,e:t.emoji,p:p.id,s:t.ess&&p.id===defId()?1:0,i:xs.map(x=>[x,LOG.done[t.id+'@'+Math.round(x/6e4)]?1:now>=x+t.iv*6e4?2:0])}}));
  return r}
 function settle(){const now=Date.now();let d=LOG.settled?nday(LOG.settled):mid(LOG.first),n=0;
  while(nday(d)+36e5<=now&&n++<400){const r=calc(d);Object.values(r).forEach(v=>v.i.forEach(z=>{if(!z[1])z[1]=2}));LOG.days[dkey(d)]=r;LOG.settled=d;d=nday(d)}
@@ -285,12 +288,13 @@ function openDay(ms){const r=rows(ms),[d,m]=tally(ms),n=d+m;
  sheet(`<h2>${new Date(ms).toLocaleDateString([],{weekday:'long',day:'numeric',month:'long'})}</h2>${n?`<p class="hint"><b>${d}</b> done · <b>${m}</b> missed · ${Math.round(d/n*100)}%</p>`:'<p class="hint">No reminders were active.</p>'}${r.map(v=>`<div class="card"><b>${v.e||'🔔'} ${esc(v.n)}</b> <small style="color:var(--mute)">${v.i.filter(z=>z[1]===1).length}/${v.i.length}</small><div class="chips">${v.i.map(z=>`<span class="chip" style="${z[1]===1?'background:rgba(46,160,100,.25)':z[1]===2?'background:rgba(220,70,80,.25)':''}">${new Date(z[0]).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})} ${z[1]===1?'✓':z[1]===2?'✕':'…'}</span>`).join('')}</div></div>`).join('')}<div class="acts"><button class="btn" id="dd">Close</button></div>`);$('#dd').onclick=closeSheet}
 function setProfile(id){S.pid=id;LOG.sw.push({t:Date.now(),pid:id});saveLog();Object.keys(last).forEach(k=>delete last[k]);save();render()}
 function openProfiles(){
- sheet(`<h2>Profiles</h2>${S.profiles.map(p=>`<div class="set"><input type="text" data-n="${p.id}" maxlength="20" value="${esc(p.name)}"><button class="btn ${p.id===S.pid?'':'ghost'}" data-u="${p.id}">${p.id===S.pid?'Active':'Use'}</button>${p.id!==S.profiles[0].id?`<button class="btn del" data-x="${p.id}">✕</button>`:''}</div>`).join('')}<label>New profile</label><div class="row2"><input type="text" id="np" maxlength="20" placeholder="e.g. Study"><button class="btn" id="ap">Add</button></div><div class="acts"><button class="btn" id="pdn">Done</button></div>`);
+ sheet(`<h2>Profiles</h2><p class="hint" style="margin:-8px 0 10px">⭐ marks your default profile. Its essential reminders fire in every profile.</p>${S.profiles.map(p=>`<div class="set"><input type="text" data-n="${p.id}" maxlength="20" value="${esc(p.name)}"><button class="btn ${p.id===S.pid?'':'ghost'}" data-u="${p.id}">${p.id===S.pid?'Active':'Use'}</button><button class="btn ${p.id===defId()?'':'ghost'}" data-d="${p.id}" aria-label="Make default">${p.id===defId()?'⭐':'☆'}</button>${p.id!==defId()?`<button class="btn del" data-x="${p.id}">✕</button>`:''}</div>`).join('')}<label>New profile</label><div class="row2"><input type="text" id="np" maxlength="20" placeholder="e.g. Study"><button class="btn" id="ap">Add</button></div><div class="acts"><button class="btn" id="pdn">Done</button></div>`);
  document.querySelectorAll('[data-n]').forEach(i=>i.onchange=()=>{prof(i.dataset.n).name=i.value.trim()||'Profile';save();render()});
  document.querySelectorAll('[data-u]').forEach(b=>b.onclick=()=>{if(b.dataset.u!==S.pid){setProfile(b.dataset.u);openProfiles()}});
  document.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{if(!b.dataset.arm){b.dataset.arm=1;b.textContent='Sure?';setTimeout(()=>{b.dataset.arm='';b.textContent='✕'},2500);return}
   S.profiles=S.profiles.filter(p=>p.id!==b.dataset.x);if(S.pid===b.dataset.x)setProfile(S.profiles[0].id);else save();openProfiles()});
  $('#ap').onclick=()=>{const n=$('#np').value.trim();if(!n)return;const p={id:'p'+Date.now(),name:n,tasks:[]};S.profiles.push(p);setProfile(p.id);openProfiles()};
+ document.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{S.def=b.dataset.d;Object.keys(last).forEach(k=>delete last[k]);save();render();openProfiles()});
  $('#pdn').onclick=closeSheet}
 let ZL=[];
 function zen(list,x){list.forEach(t=>{const o=ZL.find(z=>z.t.id===t.id);if(o)o.x=x||occOf(t);else ZL.push({t,x:x||occOf(t)})});drawZen();buzz(2)}

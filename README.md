@@ -1,74 +1,80 @@
 # Nudge
 
-Gentle, repeating reminders for the things you keep forgetting: drink water, stand up, rest your eyes, take a break. Nudge runs entirely on your phone. Your reminders and your history are stored on the device only, and nothing is sent anywhere. The only permission it asks for is notifications.
+**Gentle, repeating reminders for the small things that keep a day running well.**
+Drink water. Stand up. Rest your eyes. Take a break. Nudge is an Android app that does this one job calmly and keeps everything on your phone.
 
-## What it does
+[Download the latest APK](../../releases/latest) · [What's new](CHANGELOG.md)
 
-- **Reminders.** Each one has a name, a repeat interval you choose, and an optional emoji. Emojis never repeat inside a profile.
-- **Two ways to schedule a reminder.**
+## Motivation
+
+Most reminder apps want an account, a subscription or a long list of permissions, and many end up as one more thing to check. Nudge started from a much smaller idea: *remind me to drink water every 30 minutes*, and nothing more.
+
+It grew only in ways that serve that idea:
+
+- **Reminders should fit your day.** Some run all day on a schedule. Others should run only while you are working. So a reminder can follow a time window or follow *you*, starting when you wake or sit down and stopping when you finish.
+- **Many habits, one calm app.** Water, posture, eyes and medication shouldn't fight each other. Nudge spaces overlapping reminders a few seconds apart and folds a crowd into one tidy notification.
+- **Less phone, not more.** Zen mode turns a reminder into one big button. Tap it and you are done, with no hunting through menus and no reason to open anything else.
+- **Honest feedback.** A heatmap shows what you kept up with and what you missed. It's meant as a mirror, not a scoreboard.
+- **Nothing to trust.** No account, no ads, no analytics. Your reminders and history stay on the device. The only permission Nudge asks you for is notifications.
+
+## Features
+
+- **Two ways to schedule a reminder**
   - **Time window:** for example every 30 minutes from 5:00 AM to 11:00 PM, every day.
   - **When I'm awake:** reminders start when you tap *I'm awake* and stop when you tap *Go to sleep*.
-- **Essential reminders.** Mark a Default reminder with ⭐ and it keeps firing in every profile.
-- **Many at once.** Run as many reminders as you like at the same time.
-- **Smart overlaps.** If two or three reminders land together, they arrive a few seconds apart. Four or more become one combined notification that opens into a list. Tap any item to jump to that reminder.
-- **Emoji-only mode.** Notifications show just the emoji and no words.
-- **Themes.** Tap the small circle at the bottom left to switch light and dark. Press and hold it to choose from 16 themes.
+- **Custom intervals** and as many reminders as you like at once.
+- **Smart overlaps:** two or three reminders landing together arrive a few seconds apart. Four or more become one combined notification that opens into a list. Tap an item to jump to that reminder.
+- **Profiles:** separate sets of reminders, such as *Home* and *Study*. Switch with one tap. Only the active profile sends notifications.
+- **Default profile and ⭐ Essential reminders:** pick any profile as your default (it can be named anything). Mark a reminder in it as ⭐ Essential and it keeps firing in every other profile too.
+- **Done button:** every reminder has a ✓ Done button, in the notification and in the app. Completions are stored on your phone.
+- **Zen mode:** a reminder opens as a full-screen view with one big button and a short vibration. It can open over the lock screen when Android allows it.
+- **Progress heatmap** (off by default): a week or month grid. Green means done, red means missed, and darker means a bigger share. Blank means no reminders were active. Tap any day for the details.
+- **Emojis:** an optional emoji per reminder, never repeated among reminders that fire together. Emoji-only mode shows just the emoji, with no words.
+- **Themes:** a light/dark toggle at the bottom left, and 16 themes (press and hold the toggle).
 
 ## Ways to use it
 
 **Focus sessions.** "When I'm awake" is really an on/off switch you control. Make a *Study* profile with a "Look away from the screen" reminder every 25 minutes in *When I'm awake* mode. Tap *I'm awake* when you sit down to work and *Go to sleep* when you finish. You get reminders only while you are focused, and none the rest of the day.
 
-**Different days, different routines.** Keep a *Default* profile for normal days and a *Study* or *Travel* profile for special ones. Switching profiles swaps the whole set of reminders.
+**Different days, different routines.** Keep a base profile for normal days and others for exams, travel or a night shift. Mark the things that matter every day (medication, water) as ⭐ Essential in your default profile so a profile switch never silences them.
 
-**Stay off your phone.** Turn on Zen mode and tap one big button whenever it appears, with no hunting through menus.
+**Stay off your phone.** Turn on Zen mode and answer each reminder with a single tap.
 
 **See the pattern.** Turn on the heatmap to find out which days you kept up and which you didn't.
 
-## Versions
+## Install (Android)
 
-### v2.2: essential reminders
-- In the **Default** profile, a reminder can be marked **⭐ Essential** with a switch in its editor. Essential reminders keep firing while any other profile is active, alongside that profile's own reminders.
-- In other profiles they appear under a **⭐ Essential** heading. You can pause or edit them there, and they count in that profile's heatmap too.
-- If an essential reminder lands together with others, the usual overlap rules apply.
-- The Default profile can no longer be deleted.
+1. Open the [latest release](../../releases/latest) on your phone and download the `.apk` file.
+2. Open the file. If Android asks, allow installing from that source. If Play Protect warns about an unscanned app, choose *Install anyway*.
+3. Open Nudge and tap **Allow** when it asks to show notifications.
+4. Optional: if reminders arrive late on Xiaomi, Oppo, Vivo or Samsung phones, set *Settings → Apps → Nudge → Battery* to **Unrestricted**.
 
-### v2.1: lock screen, easier profiles, safer public repo
-- The profile button now sits next to the *Your reminders* heading, bigger and easier to reach.
-- Zen mode reminders can open over the lock screen (full-screen intent permission, Android may ask you to allow it).
-- The signing key now lives in a private GitHub secret instead of the repository, so the repository can be public.
+**Updating:** install the new APK over the old one and your reminders and history are kept. If Android says *"App not installed as package conflicts with an existing package"*, the installed copy was signed with a different key. Uninstall Nudge once, then install the new APK. Saved reminders are erased by the uninstall, and later updates install in place.
 
-### v2.0: profiles, Done button, Zen mode, heatmap
-- **Profiles.** Create separate sets of reminders (for example *Study*) next to the *Default* one. Only the active profile sends notifications. Rename or delete profiles from the profile chip on the home screen.
-- **Done button.** Every reminder has a ✓ Done button, both in the notification and inside the app. Pressing it records that you did the task. The record stays on your phone.
-- **Zen mode** (Settings). A reminder opens as a full-screen view with one big button in the middle. Tap it to record the task and the phone gives a short vibration. With several reminders, you get a list of buttons and an *All done* button.
-- **Heatmap** (Settings, off by default). A week or month grid in the style of a contribution graph:
-  - green means reminders you completed, and darker green means a higher share completed;
-  - red means reminders you missed, and darker red means a higher share missed;
-  - blank means no reminders were active that day.
-  Tap any day to see each reminder with the time and whether it was done or missed. The heatmap shows the active profile.
-- **Settling in place.** The new signing key lets later versions install over this one without uninstalling.
+## Permissions and privacy
 
-### v1.1: themes and reliability
-- 16 bundled themes (8 light, 8 dark) and the light/dark toggle.
-- Exact alarms, so battery saver does not delay reminders.
-- Time-window reminders repeat on their own every day, so the app never needs reopening to top them up.
+Nudge asks you for one thing: permission to show notifications. It also declares a few permissions that Android grants without asking, so that reminders arrive on time: exact alarms, vibration and showing Zen mode over the lock screen.
 
-### v1.0: first release
-- Time-window and when-I'm-awake reminders with custom intervals, several at once.
-- Overlap handling and combined notifications, optional emojis, emoji-only mode, a name and avatar.
+Your reminders, completions and history are stored only on your phone, and there are no accounts or analytics. When you are online, the app loads its typefaces from Google Fonts. Remove the single `<link>` line near the top of `index.html` if you want a fully offline app.
 
 ## How "missed" is decided
-A reminder is **done** when you press ✓ Done for it. It is **missed** when the next reminder for the same task arrives and ✓ Done was never pressed. The last reminder of a window or session is judged one interval after it fires. Reminders that were never scheduled, such as a paused task, a stopped session or an inactive profile, don't count at all.
+
+A reminder is **done** when you press ✓ Done for it. It is **missed** when the next reminder for the same task arrives and ✓ Done was never pressed. The last reminder of a window or session is judged one interval after it fires. Reminders that were never scheduled, such as a paused task, a stopped session or a profile that wasn't active, don't count at all.
 
 ## Good to know
-- ✓ Done on a notification opens Nudge briefly to save the answer, because Android hands the tap to the app.
-- Zen mode appears on its own when Nudge is open, and opens over the lock screen when Android allows it. On Android 14 and newer, if it doesn't, allow full-screen notifications for Nudge in the phone's app settings. Tapping the notification always opens the full-screen view.
-- "When I'm awake" reminders stop after 16 hours if you forget to tap *Go to sleep*.
-- If reminders arrive late on Xiaomi, Oppo, Vivo or Samsung phones, set Settings > Apps > Nudge > Battery to *Unrestricted*.
-- History is recorded from the day you install v2.0.
 
-## Building the APK
-1. Upload `index.html`, `native.js`, `package.json` and `capacitor.config.json` to your GitHub repository. It can be public.
+- ✓ Done on a notification opens Nudge briefly to save the answer, because Android hands the tap to the app.
+- "When I'm awake" reminders stop after 16 hours if you forget to tap *Go to sleep*.
+- Your history starts from the day you install a version that includes the heatmap.
+- On Android 14 and newer, if Zen mode doesn't open over the lock screen, allow full-screen notifications for Nudge in the phone's app settings. Tapping the notification always opens it.
+
+## Build it yourself
+
+Nudge is a single web page (`index.html`) wrapped as an Android app with [Capacitor](https://capacitorjs.com). GitHub builds the APK for you, with no computer setup:
+
+1. Put `index.html`, `native.js`, `package.json` and `capacitor.config.json` in your repository.
 2. Add `build-apk-workflow.txt` as `.github/workflows/build-apk.yml`.
-3. Add your signing key as a secret: Settings > Secrets and variables > Actions > New repository secret. Name it `KEYSTORE_BASE64` and paste the whole contents of `signing-key-secret.txt` as the value. Never upload that text file to the repository.
-4. Open the Actions tab. After about 5 minutes, download the APK from the finished run.
+3. Create a signing key once and store it as a secret named `KEYSTORE_BASE64` (*Settings → Secrets and variables → Actions*). Keep the key file out of the repository. Keeping the same key lets new versions install over old ones.
+4. Open the *Actions* tab. After about 5 minutes, download the APK from the finished run.
+
+See the [changelog](CHANGELOG.md) for the full version history.
