@@ -58,6 +58,20 @@ input[type=text],input[type=time],input[type=number]{width:100%;font:inherit;col
 .sq u{position:absolute;left:12px;bottom:15px;width:9px;height:9px;border-radius:50%}
 .sq b{position:absolute;top:6px;left:9px;font-size:13px}
 .sq.on{outline:3px solid var(--acc);outline-offset:2px}
+.pfrow{margin:-6px 0 12px}
+.set input{flex:1;min-width:0}
+.toast .hd .dn{margin-left:auto;padding:6px 12px;font-size:13px}.toast .dn+.x{margin-left:4px}
+#zen{position:fixed;inset:0;z-index:50;background:var(--bg);display:grid;place-items:center;padding:24px;padding-top:calc(24px + env(safe-area-inset-top,0px))}
+.zc{display:flex;flex-direction:column;align-items:center;gap:18px;text-align:center;width:100%;max-width:420px}
+.zb{font-size:72px;line-height:1}.zc h2{font-size:26px}
+.zd{width:170px;height:170px;border-radius:50%;border:0;background:var(--acc);color:var(--onacc);font-size:64px;box-shadow:0 14px 40px rgba(0,0,0,.25)}
+.zd.s{width:52px;height:52px;font-size:24px;box-shadow:none;margin-left:auto;flex:none}
+.zr{display:flex;align-items:center;gap:12px;width:100%;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:12px 14px}.zb2{font-size:30px}
+.zl{background:transparent;border:0;color:var(--mute);margin-top:10px}
+.hgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}.hgrid small{text-align:center;color:var(--mute)}
+.hm{aspect-ratio:1;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--ink);font-size:12px;padding:0}
+.hm.today{outline:2px solid var(--acc);outline-offset:1px}.hm.fut{opacity:.35}
+.hnav{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
 .acts{display:flex;gap:10px;margin-top:20px}.acts .btn{flex:1}
 .row2{display:flex;gap:8px}.row2 input{flex:1}.em.pick{width:52px;height:auto;flex:none}
 .dd{margin-top:8px;padding:8px;background:var(--card);border:1px solid var(--line);border-radius:14px}
@@ -85,6 +99,15 @@ let S={profile:{name:'',emoji:'🌿'},emojiOnly:false,awake:null,tasks:[
  {id:'a1',title:'Drink water',mode:'window',start:'05:00',end:'23:00',iv:30,emoji:'💧',on:true},
  {id:'a2',title:'Stretch your legs',mode:'wake',start:'05:00',end:'23:00',iv:60,emoji:'🧘',on:true}]};
 try{const r=localStorage.getItem(KEY);if(r)S=Object.assign(S,JSON.parse(r))}catch(e){}
+if(!S.profiles){S.profiles=[{id:'p1',name:'Default',tasks:S.tasks}];S.pid='p1'}
+delete S.tasks;
+const prof=id=>S.profiles.find(p=>p.id===id)||S.profiles[0];
+Object.defineProperty(S,'tasks',{get(){return prof(S.pid).tasks},set(v){prof(S.pid).tasks=v},enumerable:false,configurable:true});
+const LK='nudge-log';let LOG={first:Date.now(),done:{},days:{},sw:[],sessions:[]};
+try{const r=localStorage.getItem(LK);if(r)LOG=Object.assign(LOG,JSON.parse(r))}catch(e){}
+if(!LOG.sw.length)LOG.sw.push({t:0,pid:S.pid});
+if(S.awake&&!LOG.sessions.length)LOG.sessions.push({a:S.awake});
+const saveLog=()=>{try{localStorage.setItem(LK,JSON.stringify(LOG))}catch(e){}};
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}try{window.onSave&&window.onSave()}catch(e){}};
 const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -112,7 +135,7 @@ function tick(){const now=Date.now(),due=[];
   if(last[t.id]===undefined){last[t.id]=s;return}
   if(s!==null&&s!==last[t.id])due.push(t);
   last[t.id]=s});
- if(due.length&&!window.NATIVE)dispatch(due);
+ if(due.length){if(S.zen&&!document.hidden)zen(due);else if(!window.NATIVE)dispatch(due)}
  document.querySelectorAll('[data-next]').forEach(el=>{const t=S.tasks.find(x=>x.id===el.dataset.next);el.textContent=nextLabel(t)})}
 function nextLabel(t){if(!t||!t.on)return 'Paused';
  if(t.mode==='wake'&&!S.awake)return 'Starts when you wake';
@@ -136,17 +159,17 @@ function show(list){
  const kill=()=>el.remove();
  el.className='toast'+(eo?' eo':'');
  if(eo){
-  el.innerHTML='<div class="eos">'+list.map(t=>`<button data-id="${t.id}">${e(t)}</button>`).join('')+'</div>';
+  el.innerHTML='<div class="eos">'+list.map(t=>`<button data-id="${t.id}">${e(t)}</button>`).join('')+'<button class="dn2" style="font-size:24px">✓</button></div>';
   el.querySelectorAll('button').forEach(b=>b.onclick=()=>{kill();openTask(b.dataset.id)});
-  setTimeout(kill,9000)}
+  el.querySelector('.dn2').onclick=ev=>{ev.stopPropagation();markDone(list);kill()};setTimeout(kill,9000)}
  else if(list.length===1){const t=list[0];
-  el.innerHTML=`<div class="hd"><span class="big">${t.emoji||'🔔'}</span><div class="tx"><b>${esc(t.title)}</b><small>Time for a quick check-in</small></div><button class="x">×</button></div>`;
+  el.innerHTML=`<div class="hd"><span class="big">${t.emoji||'🔔'}</span><div class="tx"><b>${esc(t.title)}</b><small>Time for a quick check-in</small></div><button class="btn dn">✓ Done</button><button class="x">×</button></div>`;
   el.querySelector('.hd').onclick=()=>{kill();openTask(t.id)};
   el.querySelector('.x').onclick=ev=>{ev.stopPropagation();kill()};
-  setTimeout(kill,10000)}
+  el.querySelector('.dn').onclick=ev=>{ev.stopPropagation();markDone(list);kill()};setTimeout(kill,10000)}
  else{
   el.innerHTML=`<div class="hd"><span class="big">🔔</span><div class="tx"><b>${list.length} reminders right now</b><small>${list.map(t=>t.emoji||'•').join(' ')} · tap to open</small></div><button class="x">×</button></div><div class="list" hidden>${list.map(t=>`<div class="li" data-id="${t.id}"><span>${t.emoji||'•'}</span><span>${esc(t.title)}</span></div>`).join('')}</div>`;
-  const ls=el.querySelector('.list');
+  const ls=el.querySelector('.list');ls.insertAdjacentHTML('beforeend','<button class="btn dn" id="da" style="margin:8px 0 2px;width:100%">Mark all done</button>');el.querySelector('#da').onclick=()=>{markDone(list);kill()};
   el.querySelector('.hd').onclick=()=>{ls.hidden=!ls.hidden};
   el.querySelector('.x').onclick=ev=>{ev.stopPropagation();kill()};
   el.querySelectorAll('.li').forEach(r=>r.onclick=()=>{kill();openTask(r.dataset.id)});
@@ -158,13 +181,15 @@ function render(){
  const nm=S.profile.name?', '+esc(S.profile.name):'';
  $('#app').innerHTML=`
  <div class="top"><div><h1>${g}${nm}</h1><p>Gentle nudges, only when you want them.</p></div><button class="av" id="prof">${S.profile.emoji}</button></div>
+ <div class="pfrow"><button class="chip" id="pf">Profile: ${esc(prof(S.pid).name)} ▾</button></div>
  <div class="card awake"><div><b>${S.awake?'You’re awake ☀️':'Sleeping 🌙'}</b><small>${S.awake?'Since '+new Date(S.awake).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'}):'Wake-based reminders are paused'}</small></div><button class="btn" id="wk">${S.awake?'Go to sleep':'I’m awake'}</button></div>
  <div class="sec"><h2>Your reminders</h2><span class="hint">${S.tasks.length} total</span></div>
  ${S.tasks.length?S.tasks.map(t=>`<div class="card task ${t.on?'':'off'}" data-id="${t.id}"><div class="ic">${t.emoji||'🔔'}</div><div class="tx"><b>${esc(t.title)}</b><small>Every ${ivTxt(t.iv)} · ${t.mode==='wake'?'while awake':f12(t.start)+'–'+f12(t.end)}</small><small data-next="${t.id}">${nextLabel(t)}</small></div><button class="sw ${t.on?'on':''}" data-sw="${t.id}" aria-label="Toggle"></button></div>`).join(''):'<div class="empty">No reminders yet. Tap “New reminder” to add one.</div>'}
+ ${S.heat?heatHTML():''}
  <button class="fab" id="add">＋ New reminder</button>`;
- $('#prof').onclick=openSettings;
+ $('#prof').onclick=openSettings;$('#pf').onclick=openProfiles;if(S.heat)bindHeat();
  $('#add').onclick=()=>openEditor();
- $('#wk').onclick=()=>{S.awake=S.awake?null:Date.now();S.tasks.forEach(t=>{if(t.mode==='wake')delete last[t.id]});save();render()};
+ $('#wk').onclick=()=>{const n=Date.now();if(S.awake){const s=LOG.sessions[LOG.sessions.length-1];if(s&&!s.s)s.s=n;S.awake=null}else{LOG.sessions.push({a:n});S.awake=n}saveLog();S.tasks.forEach(t=>{if(t.mode==='wake')delete last[t.id]});save();render()};
  document.querySelectorAll('.task').forEach(c=>c.onclick=()=>openEditor(c.dataset.id));
  document.querySelectorAll('[data-sw]').forEach(b=>b.onclick=ev=>{ev.stopPropagation();const t=S.tasks.find(x=>x.id===b.dataset.sw);t.on=!t.on;save();render()})}
 function sheet(html){$('#sheet').innerHTML=html;$('#sheetbg').classList.add('show')}
@@ -189,7 +214,7 @@ function openEditor(id){
   document.querySelectorAll('[data-e]').forEach(b=>b.onclick=()=>{grab();d.emoji=b.dataset.e;open=false;draw()});$('#ep').onclick=()=>{grab();open=!open;draw()};
   $('#sv').onclick=()=>{grab();if(!d.title.trim()){$('#ti').focus();return}
    d.title=d.title.trim();
-   if(ex)Object.assign(ex,d);else S.tasks.push({...d,id:'t'+Date.now()});
+   if(ex)Object.assign(ex,d);else S.tasks.push({...d,id:'t'+Date.now(),c:Date.now()});
    delete last[ex?ex.id:''];save();closeSheet();render()};
   if(ex){$('#rm').onclick=()=>{S.tasks=S.tasks.filter(t=>t.id!==id);save();closeSheet();render()};
    $('#ts').onclick=()=>{closeSheet();show([ex])}}};
@@ -201,15 +226,77 @@ function openSettings(){
  <label>Avatar</label><div class="grid">${AVS.map(e=>`<button class="em ${S.profile.emoji===e?'on':''}" data-a="${e}">${e}</button>`).join('')}</div>
  <div style="margin-top:14px">
   <div class="set"><div><b>Emoji-only mode</b><small>Notifications show just the emoji, no text</small></div><button class="sw ${S.emojiOnly?'on':''}" id="eo"></button></div>
+  <div class="set"><div><b>Zen mode</b><small>Full-screen reminder with one big Done button</small></div><button class="sw ${S.zen?'on':''}" id="zn"></button></div>
+  <div class="set"><div><b>Progress heatmap</b><small>Shows how many reminders you completed</small></div><button class="sw ${S.heat?'on':''}" id="hmt"></button></div>
   <div class="set"><div><b>System notifications</b><small>${perm==='native'?'Managed in phone settings':perm==='granted'?'Enabled':perm==='denied'?'Blocked in your browser settings':perm==='unsupported'?'Not available here':'Also alert outside this tab'}</small></div>${perm==='default'?'<button class="btn ghost" id="pm">Allow</button>':''}</div>
   <div class="set"><div><b>Preview overlap</b><small>Fires every active reminder at once</small></div><button class="btn ghost" id="demo">Try it</button></div>
  </div>
  <div class="acts"><button class="btn" id="done">Done</button></div>`);
  document.querySelectorAll('[data-a]').forEach(b=>b.onclick=()=>{S.profile.name=$('#pn').value.trim();S.profile.emoji=b.dataset.a;save();render();openSettings()});
  $('#eo').onclick=()=>{S.profile.name=$('#pn').value.trim();S.emojiOnly=!S.emojiOnly;save();openSettings()};
+ $('#zn').onclick=()=>{S.profile.name=$('#pn').value.trim();S.zen=!S.zen;save();openSettings()};
+ $('#hmt').onclick=()=>{S.profile.name=$('#pn').value.trim();S.heat=!S.heat;save();openSettings()};
  if($('#pm'))$('#pm').onclick=async()=>{try{await Notification.requestPermission()}catch(e){}openSettings()};
  $('#demo').onclick=()=>{closeSheet();const l=S.tasks.filter(t=>t.on);if(l.length)dispatch(l)};
  $('#done').onclick=()=>{S.profile.name=$('#pn').value.trim();save();closeSheet();render()}}
+/* ---------- log, profiles, zen, heatmap ---------- */
+const mid=ms=>{const d=new Date(ms);return new Date(d.getFullYear(),d.getMonth(),d.getDate()).getTime()};
+const nday=(ms,n=1)=>{const d=new Date(ms);return new Date(d.getFullYear(),d.getMonth(),d.getDate()+n).getTime()};
+const dkey=ms=>{const d=new Date(ms);return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()};
+const occOf=t=>slot(t,Date.now())||Date.now();
+function markDone(ts,x){ts.forEach(t=>{LOG.done[t.id+'@'+Math.round((x||occOf(t))/6e4)]=Date.now()});saveLog();flash('Marked done ✓');render()}
+function flash(m){const el=document.createElement('div');el.className='toast';el.innerHTML=`<div class="hd"><span class="big">✓</span><div class="tx"><b>${m}</b></div></div>`;$('#toasts').appendChild(el);setTimeout(()=>el.remove(),2200)}
+function buzz(n){const H=window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.Haptics;
+ const go=()=>{try{H?H.vibrate({duration:120}):navigator.vibrate&&navigator.vibrate(120)}catch(e){}};go();if(n>1)setTimeout(go,260)}
+function activeAt(x){let p=LOG.sw[0].pid;LOG.sw.forEach(s=>{if(s.t<=x)p=s.pid});return p}
+function occs(t,from,to){const iv=t.iv*6e4,lo=Math.max(from,t.c||LOG.first),o=[];
+ if(t.mode==='wake')LOG.sessions.forEach(s=>{const end=Math.min(s.s||Date.now(),s.a+16*36e5);for(let x=s.a+iv;x<=end;x+=iv)if(x>=lo&&x<to)o.push(x)});
+ else for(let d=nday(mid(from),-1);d<to;d=nday(d)){const b=d+hm(t.start)*6e4,e=b+winLen(t);for(let x=b;x<=e;x+=iv)if(x>=lo&&x<to)o.push(x)}
+ return[...new Set(o)].sort((a,b)=>a-b)}
+/* a reminder is missed when its next one is due and Done was never pressed */
+function calc(ms){const to=nday(ms),now=Date.now(),r={};
+ S.profiles.forEach(p=>p.tasks.forEach(t=>{if(!t.on)return;
+  const xs=occs(t,ms,to).filter(x=>x<=now&&activeAt(x)===p.id);
+  if(xs.length)r[t.id]={n:t.title,e:t.emoji,p:p.id,i:xs.map(x=>[x,LOG.done[t.id+'@'+Math.round(x/6e4)]?1:now>=x+t.iv*6e4?2:0])}}));
+ return r}
+function settle(){const now=Date.now();let d=LOG.settled?nday(LOG.settled):mid(LOG.first),n=0;
+ while(nday(d)+36e5<=now&&n++<400){const r=calc(d);Object.values(r).forEach(v=>v.i.forEach(z=>{if(!z[1])z[1]=2}));LOG.days[dkey(d)]=r;LOG.settled=d;d=nday(d)}
+ saveLog()}
+const rows=ms=>Object.values(LOG.days[dkey(ms)]||calc(ms)).filter(v=>v.p===S.pid);
+function tally(ms){let d=0,m=0;rows(ms).forEach(v=>v.i.forEach(z=>{if(z[1]===1)d++;else if(z[1]===2)m++}));return[d,m]}
+const heat=(d,m)=>{const n=d+m;if(!n)return'';const p=d/n,a=(.25+.75*Math.abs(p-.5)*2).toFixed(2);return p>=.5?`rgba(46,160,100,${a})`:`rgba(220,70,80,${a})`};
+const HV={m:'week',o:0};
+function hdays(){const n=Date.now();
+ if(HV.m==='week'){const t=nday(mid(n),-((new Date(n).getDay()+6)%7)+HV.o*7);return{list:[...Array(7)].map((_,i)=>nday(t,i)),pad:0}}
+ const d=new Date(n),f=new Date(d.getFullYear(),d.getMonth()+HV.o,1),c=new Date(f.getFullYear(),f.getMonth()+1,0).getDate();
+ return{list:[...Array(c)].map((_,i)=>nday(f.getTime(),i)),pad:(f.getDay()+6)%7,title:f.toLocaleDateString([],{month:'long',year:'numeric'})}}
+function heatHTML(){const D=hdays(),n=Date.now(),W=['M','T','W','T','F','S','S'];
+ const f=ms=>new Date(ms).toLocaleDateString([],{day:'numeric',month:'short'});
+ const lbl=D.title||f(D.list[0])+' – '+f(D.list[6]);
+ return `<div class="sec"><h2>Progress</h2><div class="seg" style="width:150px"><button data-hv="week" class="${HV.m==='week'?'on':''}">Week</button><button data-hv="month" class="${HV.m==='month'?'on':''}">Month</button></div></div><div class="card"><div class="hnav"><button class="chip" id="hp">‹</button><b>${lbl}</b><button class="chip" id="hn">›</button></div><div class="hgrid">${W.map(x=>`<small>${x}</small>`).join('')}${'<i></i>'.repeat(D.pad)}${D.list.map(ms=>{const fut=ms>n,[d,m]=fut?[0,0]:tally(ms),c=heat(d,m);return `<button class="hm ${mid(n)===ms?'today':''} ${fut?'fut':''}" data-d="${ms}" ${fut?'disabled':''} style="${c?'background:'+c:''}">${new Date(ms).getDate()}</button>`}).join('')}</div><p class="hint">Green done · Red missed · Blank no reminders. Darker means more.</p></div>`}
+function bindHeat(){document.querySelectorAll('[data-hv]').forEach(b=>b.onclick=()=>{HV.m=b.dataset.hv;HV.o=0;render()});
+ $('#hp').onclick=()=>{HV.o--;render()};$('#hn').onclick=()=>{if(HV.o<0){HV.o++;render()}};
+ document.querySelectorAll('.hm').forEach(b=>b.onclick=()=>openDay(+b.dataset.d))}
+function openDay(ms){const r=rows(ms),[d,m]=tally(ms),n=d+m;
+ sheet(`<h2>${new Date(ms).toLocaleDateString([],{weekday:'long',day:'numeric',month:'long'})}</h2>${n?`<p class="hint"><b>${d}</b> done · <b>${m}</b> missed · ${Math.round(d/n*100)}%</p>`:'<p class="hint">No reminders were active.</p>'}${r.map(v=>`<div class="card"><b>${v.e||'🔔'} ${esc(v.n)}</b> <small style="color:var(--mute)">${v.i.filter(z=>z[1]===1).length}/${v.i.length}</small><div class="chips">${v.i.map(z=>`<span class="chip" style="${z[1]===1?'background:rgba(46,160,100,.25)':z[1]===2?'background:rgba(220,70,80,.25)':''}">${new Date(z[0]).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})} ${z[1]===1?'✓':z[1]===2?'✕':'…'}</span>`).join('')}</div></div>`).join('')}<div class="acts"><button class="btn" id="dd">Close</button></div>`);$('#dd').onclick=closeSheet}
+function setProfile(id){S.pid=id;LOG.sw.push({t:Date.now(),pid:id});saveLog();Object.keys(last).forEach(k=>delete last[k]);save();render()}
+function openProfiles(){
+ sheet(`<h2>Profiles</h2>${S.profiles.map(p=>`<div class="set"><input type="text" data-n="${p.id}" maxlength="20" value="${esc(p.name)}"><button class="btn ${p.id===S.pid?'':'ghost'}" data-u="${p.id}">${p.id===S.pid?'Active':'Use'}</button>${S.profiles.length>1?`<button class="btn del" data-x="${p.id}">✕</button>`:''}</div>`).join('')}<label>New profile</label><div class="row2"><input type="text" id="np" maxlength="20" placeholder="e.g. Study"><button class="btn" id="ap">Add</button></div><div class="acts"><button class="btn" id="pdn">Done</button></div>`);
+ document.querySelectorAll('[data-n]').forEach(i=>i.onchange=()=>{prof(i.dataset.n).name=i.value.trim()||'Profile';save();render()});
+ document.querySelectorAll('[data-u]').forEach(b=>b.onclick=()=>{if(b.dataset.u!==S.pid){setProfile(b.dataset.u);openProfiles()}});
+ document.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{if(!b.dataset.arm){b.dataset.arm=1;b.textContent='Sure?';setTimeout(()=>{b.dataset.arm='';b.textContent='✕'},2500);return}
+  S.profiles=S.profiles.filter(p=>p.id!==b.dataset.x);if(S.pid===b.dataset.x)setProfile(S.profiles[0].id);else save();openProfiles()});
+ $('#ap').onclick=()=>{const n=$('#np').value.trim();if(!n)return;const p={id:'p'+Date.now(),name:n,tasks:[]};S.profiles.push(p);setProfile(p.id);openProfiles()};
+ $('#pdn').onclick=closeSheet}
+let ZL=[];
+function zen(list,x){list.forEach(t=>{const o=ZL.find(z=>z.t.id===t.id);if(o)o.x=x||occOf(t);else ZL.push({t,x:x||occOf(t)})});drawZen();buzz(2)}
+function drawZen(){let z=$('#zen');if(!ZL.length){if(z)z.remove();render();return}
+ if(!z){z=document.createElement('div');z.id='zen';document.body.appendChild(z)}
+ const one=ZL.length===1,eo=S.emojiOnly;
+ z.innerHTML=one?`<div class="zc"><div class="zb">${ZL[0].t.emoji||'🔔'}</div>${eo?'':`<h2>${esc(ZL[0].t.title)}</h2>`}<button class="zd" data-z="0">✓</button><button class="zl">Later</button></div>`:`<div class="zc">${ZL.map((o,i)=>`<div class="zr"><span class="zb2">${o.t.emoji||'🔔'}</span>${eo?'':`<b>${esc(o.t.title)}</b>`}<button class="zd s" data-z="${i}">✓</button></div>`).join('')}<button class="btn" id="zall">All done</button><button class="zl">Later</button></div>`;
+ z.querySelectorAll('[data-z]').forEach(b=>b.onclick=()=>{const o=ZL.splice(+b.dataset.z,1)[0];markDone([o.t],o.x);buzz(1);drawZen()});
+ const all=z.querySelector('#zall');if(all)all.onclick=()=>{const l=ZL;ZL=[];l.forEach(o=>markDone([o.t],o.x));buzz(1);drawZen()};
+ z.querySelector('.zl').onclick=()=>{ZL=[];drawZen()}}
 /* ---------- themes ---------- */
 const KEYS=['bg','card','ink','mute','acc','acc2','line','onacc'];
 const TH=[
@@ -249,5 +336,5 @@ function openThemes(){
  tg.onclick=()=>{if(!fired)toggleMode()};
  tg.oncontextmenu=e=>e.preventDefault()}
 applyTheme();
-render();tick();setInterval(tick,1000);
+settle();render();tick();setInterval(tick,1000);
 </script><script src="native.js"></script></body></html>

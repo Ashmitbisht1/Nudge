@@ -3,6 +3,7 @@
  if(!C||!C.isNativePlatform||!C.isNativePlatform()||!LN)return;
  window.NATIVE=true;
  const e=t=>t.emoji||'🔔',tod=m=>((m%1440)+1440)%1440;
+ const allT=()=>S.profiles.flatMap(p=>p.tasks);
  function content(ts){
   if(S.emojiOnly)return{title:ts.map(e).join(' '),body:' '};
   if(ts.length>1)return{title:ts.length+' reminders',body:ts.map(t=>e(t)+' '+t.title).join('\n')};
@@ -21,33 +22,39 @@
   return by}
  function plan(){const out=[],dy=daily(),wk=wake();
   Object.keys(dy).map(Number).forEach(m=>{const g=dy[m],h=Math.floor(m/60),mi=m%60;
-   if(g.length>=4)out.push({ts:g,on:{hour:h,minute:mi,second:0}});
-   else g.forEach((t,i)=>out.push({ts:[t],on:{hour:h,minute:mi,second:i*5}}))});
+   if(g.length>=4)out.push({ts:g,on:{hour:h,minute:mi,second:0},tod:m*6e4});
+   else g.forEach((t,i)=>out.push({ts:[t],on:{hour:h,minute:mi,second:i*5},tod:m*6e4+i*5000}))});
   Object.keys(wk).map(Number).sort((a,b)=>a-b).forEach(k=>{
    const g=wk[k],d=new Date(k),w=(dy[d.getHours()*60+d.getMinutes()]||[]).length,off=w>=4?5000:w*5000;
-   if(g.length>=4)out.push({ts:g,at:k+off});
-   else g.forEach((t,i)=>out.push({ts:[t],at:k+off+i*5000}))});
+   if(g.length>=4)out.push({ts:g,at:k+off,occ:k});
+   else g.forEach((t,i)=>out.push({ts:[t],at:k+off+i*5000,occ:k}))});
   return out.slice(0,400)}
  async function run(){
   const pm=await LN.checkPermissions();
   if(pm.display!=='granted'){const r=await LN.requestPermissions();if(r.display!=='granted')return}
   try{await LN.createChannel({id:'nudge',name:'Reminders',importance:4,vibration:true})}catch(x){}
+  try{await LN.registerActionTypes({types:[{id:'NUDGE',actions:[{id:'done',title:'✓ Done'}]}]})}catch(x){}
   const p=await LN.getPending();
   if(p.notifications.length)await LN.cancel({notifications:p.notifications.map(n=>({id:n.id}))});
   const items=plan();
   if(items.length)await LN.schedule({notifications:items.map((it,i)=>{const c=content(it.ts);
-   return{id:i+1,title:c.title,body:c.body,largeBody:c.body,channelId:'nudge',
+   return{id:i+1,title:c.title,body:c.body,largeBody:c.body,channelId:'nudge',actionTypeId:'NUDGE',
     schedule:it.on?{on:it.on,allowWhileIdle:true}:{at:new Date(it.at),allowWhileIdle:true},
-    extra:{ids:it.ts.map(t=>t.id)}}})})}
+    extra:{ids:it.ts.map(t=>t.id),tod:it.tod,at:it.occ}}})})}
  let busy=false,again=false;
  async function sync(){
   if(busy){again=true;return}
   busy=true;try{await run()}catch(x){console.error(x)}busy=false;
   if(again){again=false;sync()}}
+ /* which scheduled moment does a tapped notification belong to? */
+ const occ=ex=>{if(ex.at)return ex.at;const n=Date.now();let x=mid(n)+ex.tod;if(x>n+6e4)x=mid(mid(n)-1)+ex.tod;return x};
  LN.addListener('localNotificationActionPerformed',a=>{
-  const ids=(a.notification.extra&&a.notification.extra.ids)||[];
-  const ts=ids.map(i=>S.tasks.find(t=>t.id===i)).filter(Boolean);
-  if(ts.length===1)openTask(ts[0].id);else if(ts.length)show(ts)});
+  const ex=a.notification.extra||{},ids=ex.ids||[],x=occ(ex);
+  const ts=ids.map(i=>allT().find(t=>t.id===i)).filter(Boolean);
+  if(!ts.length)return;
+  if(a.actionId==='done')markDone(ts,x);
+  else if(S.zen)zen(ts,x);
+  else if(ts.length===1)openTask(ts[0].id);else show(ts)});
  let tm;window.onSave=()=>{clearTimeout(tm);tm=setTimeout(sync,500)};
  document.addEventListener('visibilitychange',()=>{if(!document.hidden)sync()});
  sync();
