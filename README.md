@@ -8,6 +8,7 @@ Gentle, repeating reminders for the things you keep forgetting: drink water, sta
 - **Two ways to schedule a reminder.**
   - **Time window:** for example every 30 minutes from 5:00 AM to 11:00 PM, every day.
   - **When I'm awake:** reminders start when you tap *I'm awake* and stop when you tap *Go to sleep*.
+- **Essential reminders.** Mark a Default reminder with ⭐ and it keeps firing in every profile.
 - **Many at once.** Run as many reminders as you like at the same time.
 - **Smart overlaps.** If two or three reminders land together, they arrive a few seconds apart. Four or more become one combined notification that opens into a list. Tap any item to jump to that reminder.
 - **Emoji-only mode.** Notifications show just the emoji and no words.
@@ -24,6 +25,17 @@ Gentle, repeating reminders for the things you keep forgetting: drink water, sta
 **See the pattern.** Turn on the heatmap to find out which days you kept up and which you didn't.
 
 ## Versions
+
+### v2.2: essential reminders
+- In the **Default** profile, a reminder can be marked **⭐ Essential** with a switch in its editor. Essential reminders keep firing while any other profile is active, alongside that profile's own reminders.
+- In other profiles they appear under a **⭐ Essential** heading. You can pause or edit them there, and they count in that profile's heatmap too.
+- If an essential reminder lands together with others, the usual overlap rules apply.
+- The Default profile can no longer be deleted.
+
+### v2.1: lock screen, easier profiles, safer public repo
+- The profile button now sits next to the *Your reminders* heading, bigger and easier to reach.
+- Zen mode reminders can open over the lock screen (full-screen intent permission, Android may ask you to allow it).
+- The signing key now lives in a private GitHub secret instead of the repository, so the repository can be public.
 
 ### v2.0: profiles, Done button, Zen mode, heatmap
 - **Profiles.** Create separate sets of reminders (for example *Study*) next to the *Default* one. Only the active profile sends notifications. Rename or delete profiles from the profile chip on the home screen.
@@ -50,10 +62,13 @@ A reminder is **done** when you press ✓ Done for it. It is **missed** when the
 
 ## Good to know
 - ✓ Done on a notification opens Nudge briefly to save the answer, because Android hands the tap to the app.
-- Zen mode appears as soon as you open the app from a notification, or on its own if Nudge is already open. When your phone is locked, Android shows the normal notification, and tapping it opens the full-screen view.
+- Zen mode appears on its own when Nudge is open, and opens over the lock screen when Android allows it. On Android 14 and newer, if it doesn't, allow full-screen notifications for Nudge in the phone's app settings. Tapping the notification always opens the full-screen view.
 - "When I'm awake" reminders stop after 16 hours if you forget to tap *Go to sleep*.
 - If reminders arrive late on Xiaomi, Oppo, Vivo or Samsung phones, set Settings > Apps > Nudge > Battery to *Unrestricted*.
 - History is recorded from the day you install v2.0.
 
 ## Building the APK
-Upload `index.html`, `native.js`, `package.json`, `capacitor.config.json` and `debug.keystore` to your GitHub repository. Put `build-apk-workflow.txt` in as `.github/workflows/build-apk.yml`. Keep the repository **private**, because it contains the signing key. GitHub builds the app in about 5 minutes and you download it from the Actions tab.
+1. Upload `index.html`, `native.js`, `package.json` and `capacitor.config.json` to your GitHub repository. It can be public.
+2. Add `build-apk-workflow.txt` as `.github/workflows/build-apk.yml`.
+3. Add your signing key as a secret: Settings > Secrets and variables > Actions > New repository secret. Name it `KEYSTORE_BASE64` and paste the whole contents of `signing-key-secret.txt` as the value. Never upload that text file to the repository.
+4. Open the Actions tab. After about 5 minutes, download the APK from the finished run.

@@ -10,14 +10,14 @@
   return{title:(ts[0].emoji?ts[0].emoji+' ':'')+ts[0].title,body:'Time for a quick check-in'}}
  /* Time-window reminders: one repeating-daily alarm per time of day, so no refilling is needed */
  function daily(){const by={};
-  S.tasks.filter(t=>t.on&&t.mode==='window').forEach(t=>{
+  live().filter(t=>t.on&&t.mode==='window').forEach(t=>{
    const st=hm(t.start),len=winLen(t)/6e4,seen=new Set();
    for(let k=0;k*t.iv<=len;k++){const m=tod(st+k*t.iv);if(seen.has(m))continue;seen.add(m);(by[m]=by[m]||[]).push(t)}});
   return by}
  /* "When I'm awake" reminders: one-off alarms for up to 16 hours after you tap I'm awake */
  function wake(){const now=Date.now(),by={};
   if(!S.awake)return by;
-  S.tasks.filter(t=>t.on&&t.mode==='wake').forEach(t=>{const iv=t.iv*6e4,end=S.awake+16*36e5;
+  live().filter(t=>t.on&&t.mode==='wake').forEach(t=>{const iv=t.iv*6e4,end=S.awake+16*36e5;
    for(let x=S.awake+iv;x<=end;x+=iv)if(x>now){const k=Math.round(x/6e4)*6e4;(by[k]=by[k]||[]).push(t)}});
   return by}
  function plan(){const out=[],dy=daily(),wk=wake();
@@ -40,7 +40,7 @@
   if(items.length)await LN.schedule({notifications:items.map((it,i)=>{const c=content(it.ts);
    return{id:i+1,title:c.title,body:c.body,largeBody:c.body,channelId:'nudge',actionTypeId:'NUDGE',
     schedule:it.on?{on:it.on,allowWhileIdle:true}:{at:new Date(it.at),allowWhileIdle:true},
-    extra:{ids:it.ts.map(t=>t.id),tod:it.tod,at:it.occ}}})})}
+    extra:{ids:it.ts.map(t=>t.id),tod:it.tod,at:it.occ,zen:!!S.zen}}})})}
  let busy=false,again=false;
  async function sync(){
   if(busy){again=true;return}

@@ -58,7 +58,7 @@ input[type=text],input[type=time],input[type=number]{width:100%;font:inherit;col
 .sq u{position:absolute;left:12px;bottom:15px;width:9px;height:9px;border-radius:50%}
 .sq b{position:absolute;top:6px;left:9px;font-size:13px}
 .sq.on{outline:3px solid var(--acc);outline-offset:2px}
-.pfrow{margin:-6px 0 12px}
+.pfb{background:var(--acc2);color:var(--ink);border:1.5px solid var(--acc);padding:11px 18px;border-radius:14px;font-size:15px;max-width:58%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .set input{flex:1;min-width:0}
 .toast .hd .dn{margin-left:auto;padding:6px 12px;font-size:13px}.toast .dn+.x{margin-left:4px}
 #zen{position:fixed;inset:0;z-index:50;background:var(--bg);display:grid;place-items:center;padding:24px;padding-top:calc(24px + env(safe-area-inset-top,0px))}
@@ -102,6 +102,9 @@ try{const r=localStorage.getItem(KEY);if(r)S=Object.assign(S,JSON.parse(r))}catc
 if(!S.profiles){S.profiles=[{id:'p1',name:'Default',tasks:S.tasks}];S.pid='p1'}
 delete S.tasks;
 const prof=id=>S.profiles.find(p=>p.id===id)||S.profiles[0];
+const own=id=>S.profiles.find(p=>p.tasks.some(t=>t.id===id));
+const ess=()=>S.pid===S.profiles[0].id?[]:S.profiles[0].tasks.filter(t=>t.ess);
+const live=()=>S.tasks.concat(ess());
 Object.defineProperty(S,'tasks',{get(){return prof(S.pid).tasks},set(v){prof(S.pid).tasks=v},enumerable:false,configurable:true});
 const LK='nudge-log';let LOG={first:Date.now(),done:{},days:{},sw:[],sessions:[]};
 try{const r=localStorage.getItem(LK);if(r)LOG=Object.assign(LOG,JSON.parse(r))}catch(e){}
@@ -130,13 +133,13 @@ function nextT(t,now){const iv=t.iv*60000;
  return null}
 const last={};
 function tick(){const now=Date.now(),due=[];
- S.tasks.forEach(t=>{if(!t.on){delete last[t.id];return}
+ live().forEach(t=>{if(!t.on){delete last[t.id];return}
   const s=slot(t,now);
   if(last[t.id]===undefined){last[t.id]=s;return}
   if(s!==null&&s!==last[t.id])due.push(t);
   last[t.id]=s});
  if(due.length){if(S.zen&&!document.hidden)zen(due);else if(!window.NATIVE)dispatch(due)}
- document.querySelectorAll('[data-next]').forEach(el=>{const t=S.tasks.find(x=>x.id===el.dataset.next);el.textContent=nextLabel(t)})}
+ document.querySelectorAll('[data-next]').forEach(el=>{const t=live().find(x=>x.id===el.dataset.next);el.textContent=nextLabel(t)})}
 function nextLabel(t){if(!t||!t.on)return 'Paused';
  if(t.mode==='wake'&&!S.awake)return 'Starts when you wake';
  const n=nextT(t,Date.now());if(!n)return '—';
@@ -181,25 +184,25 @@ function render(){
  const nm=S.profile.name?', '+esc(S.profile.name):'';
  $('#app').innerHTML=`
  <div class="top"><div><h1>${g}${nm}</h1><p>Gentle nudges, only when you want them.</p></div><button class="av" id="prof">${S.profile.emoji}</button></div>
- <div class="pfrow"><button class="chip" id="pf">Profile: ${esc(prof(S.pid).name)} ▾</button></div>
  <div class="card awake"><div><b>${S.awake?'You’re awake ☀️':'Sleeping 🌙'}</b><small>${S.awake?'Since '+new Date(S.awake).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'}):'Wake-based reminders are paused'}</small></div><button class="btn" id="wk">${S.awake?'Go to sleep':'I’m awake'}</button></div>
- <div class="sec"><h2>Your reminders</h2><span class="hint">${S.tasks.length} total</span></div>
- ${S.tasks.length?S.tasks.map(t=>`<div class="card task ${t.on?'':'off'}" data-id="${t.id}"><div class="ic">${t.emoji||'🔔'}</div><div class="tx"><b>${esc(t.title)}</b><small>Every ${ivTxt(t.iv)} · ${t.mode==='wake'?'while awake':f12(t.start)+'–'+f12(t.end)}</small><small data-next="${t.id}">${nextLabel(t)}</small></div><button class="sw ${t.on?'on':''}" data-sw="${t.id}" aria-label="Toggle"></button></div>`).join(''):'<div class="empty">No reminders yet. Tap “New reminder” to add one.</div>'}
+ <div class="sec"><h2>Your reminders</h2><button class="btn pfb" id="pf">📂 ${esc(prof(S.pid).name)} ▾</button></div>
+ ${S.tasks.length?S.tasks.map(t=>`<div class="card task ${t.on?'':'off'}" data-id="${t.id}"><div class="ic">${t.emoji||'🔔'}</div><div class="tx"><b>${t.ess?'⭐ ':''}${esc(t.title)}</b><small>Every ${ivTxt(t.iv)} · ${t.mode==='wake'?'while awake':f12(t.start)+'–'+f12(t.end)}</small><small data-next="${t.id}">${nextLabel(t)}</small></div><button class="sw ${t.on?'on':''}" data-sw="${t.id}" aria-label="Toggle"></button></div>`).join(''):'<div class="empty">No reminders yet. Tap “New reminder” to add one.</div>'}
+ ${ess().length?`<div class="sec"><h2>⭐ Essential</h2><span class="hint">From ${esc(S.profiles[0].name)}</span></div>${ess().map(card).join('')}`:''}
  ${S.heat?heatHTML():''}
  <button class="fab" id="add">＋ New reminder</button>`;
  $('#prof').onclick=openSettings;$('#pf').onclick=openProfiles;if(S.heat)bindHeat();
  $('#add').onclick=()=>openEditor();
- $('#wk').onclick=()=>{const n=Date.now();if(S.awake){const s=LOG.sessions[LOG.sessions.length-1];if(s&&!s.s)s.s=n;S.awake=null}else{LOG.sessions.push({a:n});S.awake=n}saveLog();S.tasks.forEach(t=>{if(t.mode==='wake')delete last[t.id]});save();render()};
+ $('#wk').onclick=()=>{const n=Date.now();if(S.awake){const s=LOG.sessions[LOG.sessions.length-1];if(s&&!s.s)s.s=n;S.awake=null}else{LOG.sessions.push({a:n});S.awake=n}saveLog();live().forEach(t=>{if(t.mode==='wake')delete last[t.id]});save();render()};
  document.querySelectorAll('.task').forEach(c=>c.onclick=()=>openEditor(c.dataset.id));
- document.querySelectorAll('[data-sw]').forEach(b=>b.onclick=ev=>{ev.stopPropagation();const t=S.tasks.find(x=>x.id===b.dataset.sw);t.on=!t.on;save();render()})}
+ document.querySelectorAll('[data-sw]').forEach(b=>b.onclick=ev=>{ev.stopPropagation();const t=live().find(x=>x.id===b.dataset.sw);t.on=!t.on;save();render()})}
 function sheet(html){$('#sheet').innerHTML=html;$('#sheetbg').classList.add('show')}
 function closeSheet(){$('#sheetbg').classList.remove('show')}
 $('#sheetbg').onclick=e=>{if(e.target.id==='sheetbg')closeSheet()};
 function openTask(id){if(S.tasks.some(t=>t.id===id))openEditor(id)}
 function openEditor(id){
- const ex=S.tasks.find(t=>t.id===id);
+ const ex=live().find(t=>t.id===id);
  const d=ex?{...ex}:{title:'',mode:'window',start:'08:00',end:'22:00',iv:30,emoji:'',on:true};
- const used=S.tasks.filter(t=>t.id!==id&&t.emoji).map(t=>t.emoji);let open=false;
+ const used=live().filter(t=>t.id!==id&&t.emoji).map(t=>t.emoji);let open=false;const canEss=ex?own(id)===S.profiles[0]:S.pid===S.profiles[0].id;
  const draw=()=>{sheet(`<h2>${ex?'Edit reminder':'New reminder'}</h2>
  <label>Reminder</label><div class="row2"><button class="em pick" id="ep" type="button">${d.emoji||'😎'}</button><input type="text" id="ti" maxlength="40" placeholder="e.g. Drink water" value="${esc(d.title)}"></div>${open?`<div class="grid dd"><button class="em" data-e="">✕</button>${EMOJIS.map(e=>`<button class="em ${d.emoji===e?'on':''}" data-e="${e}" ${used.includes(e)?'disabled':''}>${e}</button>`).join('')}</div>`:''}
  <label>When</label><div class="seg"><button data-m="window" class="${d.mode==='window'?'on':''}">Time window</button><button data-m="wake" class="${d.mode==='wake'?'on':''}">When I’m awake</button></div>
@@ -207,16 +210,17 @@ function openEditor(id){
  <label>Repeat every (minutes)</label><input type="number" id="iv" min="1" max="1440" value="${d.iv}">
  <div class="chips">${[15,30,60,90].map(m=>`<button class="chip ${d.iv===m?'on':''}" data-iv="${m}">${m} min</button>`).join('')}</div>
 
+ ${canEss?`<div class="set"><div><b>⭐ Essential</b><small>Also reminds you in your other profiles</small></div><button class="sw ${d.ess?'on':''}" id="es"></button></div>`:''}
  <div class="acts">${ex?'<button class="btn del" id="rm">Delete</button><button class="btn ghost" id="ts">Test</button>':''}<button class="btn" id="sv">Save</button></div>`);
   const grab=()=>{d.title=$('#ti').value;d.iv=Math.max(1,Math.min(1440,+$('#iv').value||30));if(d.mode==='window'){d.start=$('#st').value||d.start;d.end=$('#en').value||d.end}};
   document.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{grab();d.mode=b.dataset.m;draw()});
   document.querySelectorAll('[data-iv]').forEach(b=>b.onclick=()=>{grab();d.iv=+b.dataset.iv;draw()});
-  document.querySelectorAll('[data-e]').forEach(b=>b.onclick=()=>{grab();d.emoji=b.dataset.e;open=false;draw()});$('#ep').onclick=()=>{grab();open=!open;draw()};
+  document.querySelectorAll('[data-e]').forEach(b=>b.onclick=()=>{grab();d.emoji=b.dataset.e;open=false;draw()});$('#ep').onclick=()=>{grab();open=!open;draw()};if($('#es'))$('#es').onclick=()=>{grab();d.ess=!d.ess;draw()};
   $('#sv').onclick=()=>{grab();if(!d.title.trim()){$('#ti').focus();return}
    d.title=d.title.trim();
    if(ex)Object.assign(ex,d);else S.tasks.push({...d,id:'t'+Date.now(),c:Date.now()});
    delete last[ex?ex.id:''];save();closeSheet();render()};
-  if(ex){$('#rm').onclick=()=>{S.tasks=S.tasks.filter(t=>t.id!==id);save();closeSheet();render()};
+  if(ex){$('#rm').onclick=()=>{const o=own(id);o.tasks=o.tasks.filter(t=>t.id!==id);save();closeSheet();render()};
    $('#ts').onclick=()=>{closeSheet();show([ex])}}};
  draw()}
 function openSettings(){
@@ -256,13 +260,13 @@ function occs(t,from,to){const iv=t.iv*6e4,lo=Math.max(from,t.c||LOG.first),o=[]
 /* a reminder is missed when its next one is due and Done was never pressed */
 function calc(ms){const to=nday(ms),now=Date.now(),r={};
  S.profiles.forEach(p=>p.tasks.forEach(t=>{if(!t.on)return;
-  const xs=occs(t,ms,to).filter(x=>x<=now&&activeAt(x)===p.id);
-  if(xs.length)r[t.id]={n:t.title,e:t.emoji,p:p.id,i:xs.map(x=>[x,LOG.done[t.id+'@'+Math.round(x/6e4)]?1:now>=x+t.iv*6e4?2:0])}}));
+  const xs=occs(t,ms,to).filter(x=>x<=now&&(activeAt(x)===p.id||(t.ess&&p.id===S.profiles[0].id)));
+  if(xs.length)r[t.id]={n:t.title,e:t.emoji,p:p.id,s:t.ess?1:0,i:xs.map(x=>[x,LOG.done[t.id+'@'+Math.round(x/6e4)]?1:now>=x+t.iv*6e4?2:0])}}));
  return r}
 function settle(){const now=Date.now();let d=LOG.settled?nday(LOG.settled):mid(LOG.first),n=0;
  while(nday(d)+36e5<=now&&n++<400){const r=calc(d);Object.values(r).forEach(v=>v.i.forEach(z=>{if(!z[1])z[1]=2}));LOG.days[dkey(d)]=r;LOG.settled=d;d=nday(d)}
  saveLog()}
-const rows=ms=>Object.values(LOG.days[dkey(ms)]||calc(ms)).filter(v=>v.p===S.pid);
+const rows=ms=>Object.values(LOG.days[dkey(ms)]||calc(ms)).filter(v=>v.p===S.pid||v.s);
 function tally(ms){let d=0,m=0;rows(ms).forEach(v=>v.i.forEach(z=>{if(z[1]===1)d++;else if(z[1]===2)m++}));return[d,m]}
 const heat=(d,m)=>{const n=d+m;if(!n)return'';const p=d/n,a=(.25+.75*Math.abs(p-.5)*2).toFixed(2);return p>=.5?`rgba(46,160,100,${a})`:`rgba(220,70,80,${a})`};
 const HV={m:'week',o:0};
@@ -281,7 +285,7 @@ function openDay(ms){const r=rows(ms),[d,m]=tally(ms),n=d+m;
  sheet(`<h2>${new Date(ms).toLocaleDateString([],{weekday:'long',day:'numeric',month:'long'})}</h2>${n?`<p class="hint"><b>${d}</b> done · <b>${m}</b> missed · ${Math.round(d/n*100)}%</p>`:'<p class="hint">No reminders were active.</p>'}${r.map(v=>`<div class="card"><b>${v.e||'🔔'} ${esc(v.n)}</b> <small style="color:var(--mute)">${v.i.filter(z=>z[1]===1).length}/${v.i.length}</small><div class="chips">${v.i.map(z=>`<span class="chip" style="${z[1]===1?'background:rgba(46,160,100,.25)':z[1]===2?'background:rgba(220,70,80,.25)':''}">${new Date(z[0]).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})} ${z[1]===1?'✓':z[1]===2?'✕':'…'}</span>`).join('')}</div></div>`).join('')}<div class="acts"><button class="btn" id="dd">Close</button></div>`);$('#dd').onclick=closeSheet}
 function setProfile(id){S.pid=id;LOG.sw.push({t:Date.now(),pid:id});saveLog();Object.keys(last).forEach(k=>delete last[k]);save();render()}
 function openProfiles(){
- sheet(`<h2>Profiles</h2>${S.profiles.map(p=>`<div class="set"><input type="text" data-n="${p.id}" maxlength="20" value="${esc(p.name)}"><button class="btn ${p.id===S.pid?'':'ghost'}" data-u="${p.id}">${p.id===S.pid?'Active':'Use'}</button>${S.profiles.length>1?`<button class="btn del" data-x="${p.id}">✕</button>`:''}</div>`).join('')}<label>New profile</label><div class="row2"><input type="text" id="np" maxlength="20" placeholder="e.g. Study"><button class="btn" id="ap">Add</button></div><div class="acts"><button class="btn" id="pdn">Done</button></div>`);
+ sheet(`<h2>Profiles</h2>${S.profiles.map(p=>`<div class="set"><input type="text" data-n="${p.id}" maxlength="20" value="${esc(p.name)}"><button class="btn ${p.id===S.pid?'':'ghost'}" data-u="${p.id}">${p.id===S.pid?'Active':'Use'}</button>${p.id!==S.profiles[0].id?`<button class="btn del" data-x="${p.id}">✕</button>`:''}</div>`).join('')}<label>New profile</label><div class="row2"><input type="text" id="np" maxlength="20" placeholder="e.g. Study"><button class="btn" id="ap">Add</button></div><div class="acts"><button class="btn" id="pdn">Done</button></div>`);
  document.querySelectorAll('[data-n]').forEach(i=>i.onchange=()=>{prof(i.dataset.n).name=i.value.trim()||'Profile';save();render()});
  document.querySelectorAll('[data-u]').forEach(b=>b.onclick=()=>{if(b.dataset.u!==S.pid){setProfile(b.dataset.u);openProfiles()}});
  document.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{if(!b.dataset.arm){b.dataset.arm=1;b.textContent='Sure?';setTimeout(()=>{b.dataset.arm='';b.textContent='✕'},2500);return}
@@ -297,6 +301,7 @@ function drawZen(){let z=$('#zen');if(!ZL.length){if(z)z.remove();render();retur
  z.querySelectorAll('[data-z]').forEach(b=>b.onclick=()=>{const o=ZL.splice(+b.dataset.z,1)[0];markDone([o.t],o.x);buzz(1);drawZen()});
  const all=z.querySelector('#zall');if(all)all.onclick=()=>{const l=ZL;ZL=[];l.forEach(o=>markDone([o.t],o.x));buzz(1);drawZen()};
  z.querySelector('.zl').onclick=()=>{ZL=[];drawZen()}}
+const card=t=>`<div class="card task ${t.on?'':'off'}" data-id="${t.id}"><div class="ic">${t.emoji||'🔔'}</div><div class="tx"><b>⭐ ${esc(t.title)}</b><small>Every ${ivTxt(t.iv)} · ${t.mode==='wake'?'while awake':f12(t.start)+'–'+f12(t.end)}</small><small data-next="${t.id}">${nextLabel(t)}</small></div><button class="sw ${t.on?'on':''}" data-sw="${t.id}" aria-label="Toggle"></button></div>`;
 /* ---------- themes ---------- */
 const KEYS=['bg','card','ink','mute','acc','acc2','line','onacc'];
 const TH=[
