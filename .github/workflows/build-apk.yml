@@ -11,19 +11,43 @@ jobs:
         with: { distribution: temurin, java-version: 17 }
       - name: Put the app files in the www folder
         run: mkdir -p www && cp index.html native.js www/
-      - name: Use the fixed signing key (lets new versions install over old ones)
+      - name: Use your signing key (kept as a private secret)
+        env:
+          KS: ${{ secrets.KEYSTORE_BASE64 }}
         run: |
-          if [ -f debug.keystore ]; then mkdir -p ~/.android && cp debug.keystore ~/.android/debug.keystore; fi
+          if [ -n "$KS" ]; then
+            mkdir -p ~/.android && echo "$KS" | base64 -d > ~/.android/debug.keystore
+          else
+            echo "::warning::No KEYSTORE_BASE64 secret found, using a temporary key"
+          fi
       - run: npm install
       - run: npx cap add android
-      - name: Declare permissions
+      - name: Declare permissions and lock-screen display
         run: |
           M=android/app/src/main/AndroidManifest.xml
-          for P in POST_NOTIFICATIONS USE_EXACT_ALARM SCHEDULE_EXACT_ALARM VIBRATE; do
+          for P in POST_NOTIFICATIONS USE_EXACT_ALARM SCHEDULE_EXACT_ALARM VIBRATE USE_FULL_SCREEN_INTENT; do
             grep -q "$P" $M || sed -i "s#<application#<uses-permission android:name=\"android.permission.$P\" />\n    <application#" $M
           done
+          grep -q showWhenLocked $M || sed -i 's#<activity#<activity android:showWhenLocked="true" android:turnScreenOn="true"#' $M
+      - name: Let Zen-mode reminders open over the lock screen
+        run: |
+          F=$(find node_modules/@capacitor/local-notifications/android -name LocalNotificationManager.java | head -1)
+          if [ -n "$F" ] && grep -q 'mBuilder.setContentIntent(pendingIntent);' "$F"; then
+            cp "$F" "$F.orig"
+            sed -i 's#mBuilder.setContentIntent(pendingIntent);#&\n      if (request.getExtra() != null \&\& request.getExtra().optBoolean("zen", false)) { mBuilder.setFullScreenIntent(pendingIntent, true); }#' "$F"
+            echo "patched=$F" >> $GITHUB_ENV
+          else
+            echo "::warning::Lock-screen patch was not applied (plugin code is different)"
+          fi
       - run: npx cap sync android
-      - run: cd android && ./gradlew assembleDebug
+      - name: Build
+        run: |
+          cd android
+          ./gradlew assembleDebug || {
+            echo "::warning::Build with the lock-screen patch failed, retrying without it"
+            if [ -n "$patched" ]; then cp "$patched.orig" "$patched"; fi
+            ./gradlew assembleDebug
+          }
       - uses: actions/upload-artifact@v4
         with:
           name: Nudge-apk
