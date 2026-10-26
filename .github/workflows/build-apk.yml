@@ -22,6 +22,17 @@ jobs:
           fi
       - run: npm install
       - run: npx cap add android
+      - name: App icon and full-screen layout
+        run: |
+          unzip -o icons.zip -d android/app/src/main/res
+          M=android/app/src/main/java/com/nudge/reminders/MainActivity.java
+          if [ -f "$M" ]; then
+            cp "$M" "$M.orig"
+            cp MainActivity.java "$M"
+            echo "mainact=$PWD/$M" >> $GITHUB_ENV
+          else
+            echo "::warning::MainActivity not found, full-screen layout skipped"
+          fi
       - name: Declare permissions and lock-screen display
         run: |
           M=android/app/src/main/AndroidManifest.xml
@@ -54,8 +65,9 @@ jobs:
         run: |
           cd android
           ./gradlew assembleDebug || {
-            echo "::warning::Build with the lock-screen patch failed, retrying without it"
+            echo "::warning::Build with the optional patches failed, retrying without them"
             if [ -n "$patched" ]; then cp "$patched.orig" "$patched"; fi
+            if [ -n "$mainact" ]; then cp "$mainact.orig" "$mainact"; fi
             ./gradlew assembleDebug
           }
       - uses: actions/upload-artifact@v4
