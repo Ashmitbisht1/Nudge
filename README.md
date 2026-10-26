@@ -1,3 +1,5 @@
+<p align="center"><img src="icon.png" width="110" alt="Nudge logo, a double-layered flame"></p>
+
 # Nudge
 
 **Gentle, repeating reminders for the small things that keep a day running well.**
@@ -24,12 +26,13 @@ It grew only in ways that serve that idea:
   - **When I'm awake:** reminders start when you tap *I'm awake* and stop when you tap *Go to sleep*.
 - **Custom intervals** and as many reminders as you like at once.
 - **Smart overlaps:** two or three reminders landing together arrive a few seconds apart. Four or more become one combined notification that opens into a list. Tap an item to jump to that reminder.
-- **Profiles:** separate sets of reminders, such as *Home* and *Study*. Switch with one tap. Only the active profile sends notifications.
+- **Profiles:** separate sets of reminders, such as *Home* and *Study*. Tap a profile to switch. The active one is highlighted and sits on top, and only it sends notifications. Swipe a profile left to delete it.
 - **Default profile and ⭐ Essential reminders:** pick any profile as your default (it can be named anything). Mark a reminder in it as ⭐ Essential and it keeps firing in every other profile too.
+- **Swipe to delete:** swipe a reminder to the left to reveal a red dustbin, tap it, and confirm with Yes or No. The Delete button inside a reminder asks the same question.
 - **Done button:** every reminder has a ✓ Done button, in the notification and in the app. Completions are stored on your phone.
 - **Zen mode:** a reminder opens as a full-screen view with one big button and a short vibration. It can open over the lock screen when Android allows it.
 - **Progress heatmap** (off by default): a week or month grid. Green means done, red means missed, and darker means a bigger share. Blank means no reminders were active. Tap any day for the details.
-- **Emojis:** an optional emoji per reminder, never repeated among reminders that fire together. Emoji-only mode shows just the emoji, with no words.
+- **Emojis:** an optional emoji per reminder (over 100 to pick from), never repeated among reminders that fire together. Pick your own avatar from 32. Emoji-only mode shows just the emoji, with no words.
 - **Themes:** a light/dark toggle at the bottom left, and 16 themes (press and hold the toggle).
 
 ## Ways to use it
@@ -72,7 +75,7 @@ A reminder is **done** when you press ✓ Done for it. It is **missed** when the
 
 Nudge is a single web page (`index.html`) wrapped as an Android app with [Capacitor](https://capacitorjs.com). GitHub builds the APK for you, with no computer setup:
 
-1. Put `index.html`, `native.js`, `package.json` and `capacitor.config.json` in your repository.
+1. Put `index.html`, `native.js`, `package.json`, `capacitor.config.json`, `MainActivity.java`, `icons.zip` and `icon.png` in your repository.
 2. Add `build-apk-workflow.txt` as `.github/workflows/build-apk.yml`.
 3. Create a signing key once and store it as a secret named `KEYSTORE_BASE64` (*Settings → Secrets and variables → Actions*). Keep the key file out of the repository. Keeping the same key lets new versions install over old ones.
 4. Open the *Actions* tab. After about 5 minutes, download the APK from the finished run.

@@ -2,13 +2,22 @@
 
 All notable changes to Nudge, newest first.
 
+## v2.4.0: Swipe to delete, new logo, full-screen layout
+- **New app icon:** a double-layered flame.
+- **Full-screen layout:** the app now uses the space behind the status bar and the notch, and sits above the phone's navigation bar. Status bar icons switch colour with your theme.
+- **Swipe to delete:** swipe a reminder left to reveal a red dustbin. Tapping it, or the Delete button in the editor, now asks "Delete this reminder?" with Yes and No.
+- **Profiles, tidied up:** the Active, Use and ✕ buttons are gone. The active profile is highlighted and always sits on top. Tap a profile to switch, tap the ⭐ to make it the default, and swipe a profile left to delete it (with a confirmation).
+- **More choice:** over 100 reminder emojis (up from 37) and 32 profile avatars (up from 8).
+- **Bigger "Sleeping / I'm awake" card**, easier to see and tap.
+- Removed the developer-only **Test** button and **Preview overlap** switch.
+- Removed a stray divider line above the Essential switch.
+
 ## v2.3.0: Choose your default profile
 - **Any profile can be the default.** In *Profiles*, tap the ☆ next to a profile to make it your default (⭐). The first profile is no longer permanently the default.
 - **Rename freely.** Every profile, including the default, can be named anything.
 - The ⭐ Essential reminders of whichever profile is the default fire in all other profiles. If you change the default, the new default's essential reminders take over.
 - The default profile can't be deleted. Make another profile the default first.
 - New README with the motivation behind the app, install help and a troubleshooting note for Android's "package conflicts with an existing package" message.
-- Updates now install over the existing app, so no uninstall is needed. All builds share one signing key.
 
 ## v2.2.0: Essential reminders
 - Mark a reminder in the default profile as **⭐ Essential** and it keeps firing while any other profile is active.

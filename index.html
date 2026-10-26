@@ -4,7 +4,7 @@
 <title>Nudge</title>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#faf6f0;--card:#fff;--ink:#2b2a33;--mute:#7b7885;--acc:#6c63d9;--acc2:#efecff;--line:#ece6dc;--onacc:#fff;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root{--sat:env(safe-area-inset-top,0px);--sab:env(safe-area-inset-bottom,0px);--sal:env(safe-area-inset-left,0px);--sar:env(safe-area-inset-right,0px);--kb:0px;--bg:#faf6f0;--card:#fff;--ink:#2b2a33;--mute:#7b7885;--acc:#6c63d9;--acc2:#efecff;--line:#ece6dc;--onacc:#fff;color-scheme:light;box-sizing:border-box;padding-top:var(--sat);padding-bottom:var(--sab);padding-left:var(--sal);padding-right:var(--sar)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17161d;--card:#211f2a;--ink:#f1eff7;--mute:#9a97a8;--acc:#9d96ff;--acc2:#2c2945;--line:#302d3c;--onacc:#17161d;color-scheme:dark}}
 :root[data-theme="dark"]{--bg:#17161d;--card:#211f2a;--ink:#f1eff7;--mute:#9a97a8;--acc:#9d96ff;--acc2:#2c2945;--line:#302d3c;--onacc:#17161d;color-scheme:dark}
 *{box-sizing:border-box}html,body{margin:0}
@@ -31,10 +31,10 @@ button{font:inherit;cursor:pointer}
 .sw::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:left .15s}
 .sw.on{background:var(--acc)}.sw.on::after{left:21px}
 .empty{text-align:center;color:var(--mute);padding:26px}
-.fab{position:fixed;right:20px;bottom:calc(22px + env(safe-area-inset-bottom,0px));background:var(--acc);color:var(--onacc);border:0;border-radius:99px;padding:14px 22px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.2)}
-#sheetbg{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;align-items:flex-end;justify-content:center;z-index:20}
+.fab{position:fixed;right:20px;bottom:calc(22px + var(--sab));background:var(--acc);color:var(--onacc);border:0;border-radius:99px;padding:14px 22px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.2)}
+#sheetbg{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;align-items:flex-end;justify-content:center;z-index:20;padding-bottom:var(--kb)}
 #sheetbg.show{display:flex}
-#sheet{background:var(--bg);width:100%;max-width:560px;max-height:92vh;overflow:auto;border-radius:24px 24px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom,0px))}
+#sheet{background:var(--bg);width:100%;max-width:560px;max-height:calc(92vh - var(--kb));overflow:auto;border-radius:24px 24px 0 0;padding:20px 18px calc(20px + var(--sab))}
 #sheet h2{margin-bottom:14px}
 label{display:block;font-weight:600;font-size:13px;color:var(--mute);margin:14px 0 6px}
 input[type=text],input[type=time],input[type=number]{width:100%;font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
@@ -49,7 +49,7 @@ input[type=text],input[type=time],input[type=number]{width:100%;font:inherit;col
 .em{height:44px;border-radius:12px;border:1px solid var(--line);background:var(--card);font-size:22px}
 .em.on{border-color:var(--acc);background:var(--acc2)}.em:disabled{opacity:.25;cursor:not-allowed}
 .hint{font-size:12.5px;color:var(--mute);margin:6px 0 0}
-.tg{position:fixed;left:20px;bottom:calc(24px + env(safe-area-inset-bottom,0px));width:32px;height:32px;border-radius:50%;background:var(--card);border:2px solid var(--mute);display:grid;place-items:center;padding:0;z-index:10;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation;box-shadow:0 4px 14px rgba(0,0,0,.15)}
+.tg{position:fixed;left:20px;bottom:calc(24px + var(--sab));width:32px;height:32px;border-radius:50%;background:var(--card);border:2px solid var(--mute);display:grid;place-items:center;padding:0;z-index:10;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation;box-shadow:0 4px 14px rgba(0,0,0,.15)}
 .tg::before{content:"";position:absolute;inset:-10px}
 .tg span{width:16px;height:16px;border-radius:50%;background:var(--ink);transition:background .2s}
 .sqs{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
@@ -62,7 +62,7 @@ input[type=text],input[type=time],input[type=number]{width:100%;font:inherit;col
 .set input{flex:1;min-width:0}
 .set .btn{padding:9px 12px}
 .toast .hd .dn{margin-left:auto;padding:6px 12px;font-size:13px}.toast .dn+.x{margin-left:4px}
-#zen{position:fixed;inset:0;z-index:50;background:var(--bg);display:grid;place-items:center;padding:24px;padding-top:calc(24px + env(safe-area-inset-top,0px))}
+#zen{position:fixed;inset:0;z-index:50;background:var(--bg);display:grid;place-items:center;padding:24px;padding-top:calc(24px + var(--sat))}
 .zc{display:flex;flex-direction:column;align-items:center;gap:18px;text-align:center;width:100%;max-width:420px}
 .zb{font-size:72px;line-height:1}.zc h2{font-size:26px}
 .zd{width:170px;height:170px;border-radius:50%;border:0;background:var(--acc);color:var(--onacc);font-size:64px;box-shadow:0 14px 40px rgba(0,0,0,.25)}
@@ -78,7 +78,7 @@ input[type=text],input[type=time],input[type=number]{width:100%;font:inherit;col
 .dd{margin-top:8px;padding:8px;background:var(--card);border:1px solid var(--line);border-radius:14px}
 .set{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--line)}
 .set small{display:block;color:var(--mute)}
-#toasts{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));left:0;right:0;display:flex;flex-direction:column;align-items:center;gap:8px;z-index:30;pointer-events:none;padding:0 12px}
+#toasts{position:fixed;top:calc(10px + var(--sat));left:0;right:0;display:flex;flex-direction:column;align-items:center;gap:8px;z-index:30;pointer-events:none;padding:0 12px}
 .toast{pointer-events:auto;width:100%;max-width:420px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:12px 14px;box-shadow:0 10px 30px rgba(0,0,0,.22);animation:in .3s ease}
 @keyframes in{from{opacity:0;transform:translateY(-14px)}}
 .toast .hd{display:flex;align-items:center;gap:12px;cursor:pointer}
@@ -88,13 +88,29 @@ input[type=text],input[type=time],input[type=number]{width:100%;font:inherit;col
 .toast .li{display:flex;gap:10px;align-items:center;padding:8px 2px;cursor:pointer}
 .toast .li span:first-child{font-size:20px}
 .eos{display:flex;gap:6px}.eos button{border:0;background:transparent;font-size:34px;padding:0 2px}
+.awake{padding:20px;border-radius:22px}.awake b{font-size:19px;margin-bottom:2px}.awake small{font-size:14px}#wk{padding:14px 22px;font-size:16px;border-radius:14px}
+.dd{max-height:230px;overflow-y:auto}
+.swrow{position:relative;margin-bottom:12px;border-radius:18px;overflow:hidden}
+.swrow>:not(.bin){position:relative;z-index:1;touch-action:pan-y;transition:transform .2s}
+.swrow .card{margin-bottom:0}.swrow>.prow{margin-bottom:0}
+.bin{position:absolute;inset:0;z-index:0;visibility:hidden;border:0;border-radius:0;background:#d1495b;display:flex;align-items:center;justify-content:flex-end;padding:0 28px 0 0}
+.swrow.on .bin{visibility:visible}
+.prow{display:flex;align-items:center;gap:10px;background:var(--card);border:1.5px solid var(--line);border-radius:18px;padding:8px 10px 8px 14px;margin-bottom:12px;cursor:pointer}
+.prow input{border:0;background:transparent;padding:8px 4px;font-weight:600;font-size:16px;flex:1;min-width:0;color:var(--ink)}
+.prow.act{background:var(--acc2);border-color:var(--acc)}
+.star{width:44px;height:44px;border-radius:12px;border:1px solid var(--line);background:transparent;color:var(--ink);font-size:20px;padding:0;flex:none}
+.star.on{background:var(--acc);border-color:var(--acc)}
+#dlg{position:fixed;inset:0;background:rgba(0,0,0,.45);display:grid;place-items:center;z-index:60;padding:24px}
+.dlgc{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:22px;width:100%;max-width:340px}
+.dlgc h2{font-size:21px;margin-bottom:8px}.dlgc p{color:var(--mute);margin:0 0 6px}
+.btn.del2{background:#d1495b;color:#fff}
 </style></head><body>
 <div class="wrap" id="app"></div>
 <div id="toasts"></div><button class="tg" id="tg" aria-label="Light or dark mode. Long press for themes"><span></span></button>
 <div id="sheetbg"><div id="sheet"></div></div>
 <script>
-const EMOJIS='💧 🥤 🍎 🥗 🧘 🚶 🏃 💊 😴 📖 🧠 👀 🌿 ☕ 🍵 🪥 🧴 ☀️ 🌙 🧹 🦷 💪 🙏 ✍️ 📞 🐕 🌱 🍊 🥜 🎧 🧊 🛌 🪴 🧼 🫖 🌸'.split(' ');
-const AVS='🌿 🦊 🐼 🌻 🦉 🐢 🌙 ⭐'.split(' ');
+const EMOJIS='💧 🥤 🍎 🥗 🧘 🚶 🏃 💊 😴 📖 🧠 👀 🌿 ☕ 🍵 🪥 🧴 ☀️ 🌙 🧹 🦷 💪 🙏 ✍️ 📞 🐕 🌱 🍊 🥜 🎧 🧊 🛌 🪴 🧼 🫖 🌸 🍌 🥕 🥦 🍇 🍓 🥛 🍳 🥑 🍞 🧃 🍫 🍉 🍋 🛁 🚿 🚴 🏊 ⚽ 🏋️ 🤸 🧗 💃 🎯 📚 💻 ✏️ 📝 🗓️ ⏰ ⏳ 🔔 📵 🌅 🌃 🔥 ⭐ 🎵 🎨 🎸 🧩 ♟️ ❤️ 🩺 🩹 🐈 🐟 🐦 🌳 🌻 🌼 🍀 🌈 🌊 🏠 📱 💰 🛒 🧺 🧽 🕯️ 💡 🔑 🎮 🎤 🥁 ✨ 😊 🙂 😌'.split(' ');
+const AVS='🌿 🦊 🐼 🌻 🦉 🐢 🌙 ⭐ 🐱 🐶 🐰 🐨 🦁 🐯 🐸 🐧 🦋 🐝 🐙 🦄 🌸 🍀 🔥 🌈 ☀️ 🌊 🍉 🍩 🚀 🎧 🎮 🌵'.split(' ');
 const KEY='nudge-v1';
 let S={profile:{name:'',emoji:'🌿'},emojiOnly:false,awake:null,tasks:[
  {id:'a1',title:'Drink water',mode:'window',start:'05:00',end:'23:00',iv:30,emoji:'💧',on:true},
@@ -197,7 +213,7 @@ function render(){
  $('#add').onclick=()=>openEditor();
  $('#wk').onclick=()=>{const n=Date.now();if(S.awake){const s=LOG.sessions[LOG.sessions.length-1];if(s&&!s.s)s.s=n;S.awake=null}else{LOG.sessions.push({a:n});S.awake=n}saveLog();live().forEach(t=>{if(t.mode==='wake')delete last[t.id]});save();render()};
  document.querySelectorAll('.task').forEach(c=>c.onclick=()=>openEditor(c.dataset.id));
- document.querySelectorAll('[data-sw]').forEach(b=>b.onclick=ev=>{ev.stopPropagation();const t=live().find(x=>x.id===b.dataset.sw);t.on=!t.on;save();render()})}
+ document.querySelectorAll('[data-sw]').forEach(b=>b.onclick=ev=>{ev.stopPropagation();const t=live().find(x=>x.id===b.dataset.sw);t.on=!t.on;save();render()});bindSwipe()}
 function sheet(html){$('#sheet').innerHTML=html;$('#sheetbg').classList.add('show')}
 function closeSheet(){$('#sheetbg').classList.remove('show')}
 $('#sheetbg').onclick=e=>{if(e.target.id==='sheetbg')closeSheet()};
@@ -213,8 +229,8 @@ function openEditor(id){
  <label>Repeat every (minutes)</label><input type="number" id="iv" min="1" max="1440" value="${d.iv}">
  <div class="chips">${[15,30,60,90].map(m=>`<button class="chip ${d.iv===m?'on':''}" data-iv="${m}">${m} min</button>`).join('')}</div>
 
- ${canEss?`<div class="set"><div><b>⭐ Essential</b><small>Also reminds you in your other profiles</small></div><button class="sw ${d.ess?'on':''}" id="es"></button></div>`:''}
- <div class="acts">${ex?'<button class="btn del" id="rm">Delete</button><button class="btn ghost" id="ts">Test</button>':''}<button class="btn" id="sv">Save</button></div>`);
+ ${canEss?`<div class="set" style="border-top:0;margin-top:6px"><div><b>⭐ Essential</b><small>Also reminds you in your other profiles</small></div><button class="sw ${d.ess?'on':''}" id="es"></button></div>`:''}
+ <div class="acts">${ex?'<button class="btn del" id="rm">Delete</button>':''}<button class="btn" id="sv">Save</button></div>`);
   const grab=()=>{d.title=$('#ti').value;d.iv=Math.max(1,Math.min(1440,+$('#iv').value||30));if(d.mode==='window'){d.start=$('#st').value||d.start;d.end=$('#en').value||d.end}};
   document.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{grab();d.mode=b.dataset.m;draw()});
   document.querySelectorAll('[data-iv]').forEach(b=>b.onclick=()=>{grab();d.iv=+b.dataset.iv;draw()});
@@ -223,8 +239,7 @@ function openEditor(id){
    d.title=d.title.trim();
    if(ex)Object.assign(ex,d);else S.tasks.push({...d,id:'t'+Date.now(),c:Date.now()});
    delete last[ex?ex.id:''];save();closeSheet();render()};
-  if(ex){$('#rm').onclick=()=>{const o=own(id);o.tasks=o.tasks.filter(t=>t.id!==id);save();closeSheet();render()};
-   $('#ts').onclick=()=>{closeSheet();show([ex])}}};
+  if(ex){$('#rm').onclick=()=>askDelete(id)}};
  draw()}
 function openSettings(){
  const perm=window.NATIVE?'native':(window.Notification&&Notification.permission)||'unsupported';
@@ -236,7 +251,6 @@ function openSettings(){
   <div class="set"><div><b>Zen mode</b><small>Full-screen reminder with one big Done button</small></div><button class="sw ${S.zen?'on':''}" id="zn"></button></div>
   <div class="set"><div><b>Progress heatmap</b><small>Shows how many reminders you completed</small></div><button class="sw ${S.heat?'on':''}" id="hmt"></button></div>
   <div class="set"><div><b>System notifications</b><small>${perm==='native'?'Managed in phone settings':perm==='granted'?'Enabled':perm==='denied'?'Blocked in your browser settings':perm==='unsupported'?'Not available here':'Also alert outside this tab'}</small></div>${perm==='default'?'<button class="btn ghost" id="pm">Allow</button>':''}</div>
-  <div class="set"><div><b>Preview overlap</b><small>Fires every active reminder at once</small></div><button class="btn ghost" id="demo">Try it</button></div>
  </div>
  <div class="acts"><button class="btn" id="done">Done</button></div>`);
  document.querySelectorAll('[data-a]').forEach(b=>b.onclick=()=>{S.profile.name=$('#pn').value.trim();S.profile.emoji=b.dataset.a;save();render();openSettings()});
@@ -244,7 +258,6 @@ function openSettings(){
  $('#zn').onclick=()=>{S.profile.name=$('#pn').value.trim();S.zen=!S.zen;save();openSettings()};
  $('#hmt').onclick=()=>{S.profile.name=$('#pn').value.trim();S.heat=!S.heat;save();openSettings()};
  if($('#pm'))$('#pm').onclick=async()=>{try{await Notification.requestPermission()}catch(e){}openSettings()};
- $('#demo').onclick=()=>{closeSheet();const l=S.tasks.filter(t=>t.on);if(l.length)dispatch(l)};
  $('#done').onclick=()=>{S.profile.name=$('#pn').value.trim();save();closeSheet();render()}}
 /* ---------- log, profiles, zen, heatmap ---------- */
 const mid=ms=>{const d=new Date(ms);return new Date(d.getFullYear(),d.getMonth(),d.getDate()).getTime()};
@@ -286,15 +299,43 @@ function bindHeat(){document.querySelectorAll('[data-hv]').forEach(b=>b.onclick=
  document.querySelectorAll('.hm').forEach(b=>b.onclick=()=>openDay(+b.dataset.d))}
 function openDay(ms){const r=rows(ms),[d,m]=tally(ms),n=d+m;
  sheet(`<h2>${new Date(ms).toLocaleDateString([],{weekday:'long',day:'numeric',month:'long'})}</h2>${n?`<p class="hint"><b>${d}</b> done · <b>${m}</b> missed · ${Math.round(d/n*100)}%</p>`:'<p class="hint">No reminders were active.</p>'}${r.map(v=>`<div class="card"><b>${v.e||'🔔'} ${esc(v.n)}</b> <small style="color:var(--mute)">${v.i.filter(z=>z[1]===1).length}/${v.i.length}</small><div class="chips">${v.i.map(z=>`<span class="chip" style="${z[1]===1?'background:rgba(46,160,100,.25)':z[1]===2?'background:rgba(220,70,80,.25)':''}">${new Date(z[0]).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})} ${z[1]===1?'✓':z[1]===2?'✕':'…'}</span>`).join('')}</div></div>`).join('')}<div class="acts"><button class="btn" id="dd">Close</button></div>`);$('#dd').onclick=closeSheet}
+const BIN='<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 10v6M14 10v6"/></svg>';
+let swiped=false;
+function swipify(c,onDel,onTap){
+ const w=document.createElement('div');w.className='swrow';c.parentNode.insertBefore(w,c);
+ const b=document.createElement('button');b.className='bin';b.setAttribute('aria-label','Delete');b.innerHTML=BIN;b.onclick=onDel;w.append(b,c);
+ let x0=0,y0=0,dx=0,drag=false;
+ c.addEventListener('pointerdown',e=>{x0=e.clientX;y0=e.clientY;dx=c._open?-84:0;drag=true;swiped=false;c.style.transition='none'});
+ c.addEventListener('pointermove',e=>{if(!drag)return;const mx=e.clientX-x0,my=e.clientY-y0;
+  if(!swiped&&Math.abs(my)>10&&Math.abs(my)>Math.abs(mx)){drag=false;c.style.transition='';return}
+  if(Math.abs(mx)>8)swiped=true;
+  if(swiped){w.classList.add('on');dx=Math.min(0,Math.max(-120,(c._open?-84:0)+mx));c.style.transform='translateX('+dx+'px)'}});
+ const end=()=>{if(!drag)return;drag=false;c.style.transition='';if(!swiped)return;
+  c._open=dx<-44;c.style.transform=c._open?'translateX(-84px)':'';
+  if(c._open)document.querySelectorAll('.swrow>:not(.bin)').forEach(o=>{if(o!==c){o._open=false;o.style.transform=''}});
+  else setTimeout(()=>w.classList.remove('on'),220)};
+ ['pointerup','pointercancel','pointerleave'].forEach(ev=>c.addEventListener(ev,end));
+ c.onclick=e=>{if(swiped){swiped=false;return}if(c._open){c._open=false;c.style.transform='';setTimeout(()=>w.classList.remove('on'),220);return}onTap&&onTap(e)}}
+function bindSwipe(){document.querySelectorAll('#app .task').forEach(c=>swipify(c,()=>askDelete(c.dataset.id),()=>openEditor(c.dataset.id)))}
+function confirmDlg(title,text,yes,no){
+ const d=document.createElement('div');d.id='dlg';
+ d.innerHTML=`<div class="dlgc"><h2>${title}</h2><p>${text}</p><div class="acts"><button class="btn ghost" id="dno">No</button><button class="btn del2" id="dyes">Yes</button></div></div>`;
+ document.body.appendChild(d);
+ d.querySelector('#dno').onclick=()=>{d.remove();(no||render)()};
+ d.querySelector('#dyes').onclick=()=>{d.remove();yes()}}
+function askDelete(id){const t=live().find(x=>x.id===id);if(!t)return;
+ confirmDlg('Delete this reminder?',`“${esc(t.title)}” will be removed.`,()=>{const o=own(id);o.tasks=o.tasks.filter(x=>x.id!==id);closeSheet();save();render()})}
+function askDelProfile(id){const p=prof(id);
+ confirmDlg('Delete this profile?',`“${esc(p.name)}” and its reminders will be removed.`,()=>{S.profiles=S.profiles.filter(x=>x.id!==id);if(S.pid===id)setProfile(defId());else save();render();openProfiles()},()=>openProfiles())}
 function setProfile(id){S.pid=id;LOG.sw.push({t:Date.now(),pid:id});saveLog();Object.keys(last).forEach(k=>delete last[k]);save();render()}
 function openProfiles(){
- sheet(`<h2>Profiles</h2><p class="hint" style="margin:-8px 0 10px">⭐ marks your default profile. Its essential reminders fire in every profile.</p>${S.profiles.map(p=>`<div class="set"><input type="text" data-n="${p.id}" maxlength="20" value="${esc(p.name)}"><button class="btn ${p.id===S.pid?'':'ghost'}" data-u="${p.id}">${p.id===S.pid?'Active':'Use'}</button><button class="btn ${p.id===defId()?'':'ghost'}" data-d="${p.id}" aria-label="Make default">${p.id===defId()?'⭐':'☆'}</button>${p.id!==defId()?`<button class="btn del" data-x="${p.id}">✕</button>`:''}</div>`).join('')}<label>New profile</label><div class="row2"><input type="text" id="np" maxlength="20" placeholder="e.g. Study"><button class="btn" id="ap">Add</button></div><div class="acts"><button class="btn" id="pdn">Done</button></div>`);
+ const list=[prof(S.pid),...S.profiles.filter(p=>p.id!==S.pid)];
+ sheet(`<h2>Profiles</h2><p class="hint" style="margin:-8px 0 14px">Tap a profile to switch, swipe left to delete. ⭐ marks the default, whose essential reminders fire in every profile.</p>${list.map(p=>`<div class="prow ${p.id===S.pid?'act':''}" data-p="${p.id}"><input type="text" data-n="${p.id}" maxlength="20" value="${esc(p.name)}" ${p.id===S.pid?'':'readonly'}><button class="star ${p.id===defId()?'on':''}" data-d="${p.id}" aria-label="Make default">${p.id===defId()?'⭐':'☆'}</button></div>`).join('')}<label>New profile</label><div class="row2"><input type="text" id="np" maxlength="20" placeholder="e.g. Study"><button class="btn" id="ap">Add</button></div><div class="acts"><button class="btn" id="pdn">Done</button></div>`);
+ const tap=(el,e)=>{if(e&&e.target.closest&&e.target.closest('.star'))return;const id=el.dataset.p;if(id!==S.pid){setProfile(id);openProfiles()}};
+ document.querySelectorAll('.prow').forEach(el=>{if(el.dataset.p!==defId())swipify(el,()=>askDelProfile(el.dataset.p),e=>tap(el,e));else el.onclick=e=>tap(el,e)});
  document.querySelectorAll('[data-n]').forEach(i=>i.onchange=()=>{prof(i.dataset.n).name=i.value.trim()||'Profile';save();render()});
- document.querySelectorAll('[data-u]').forEach(b=>b.onclick=()=>{if(b.dataset.u!==S.pid){setProfile(b.dataset.u);openProfiles()}});
- document.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{if(!b.dataset.arm){b.dataset.arm=1;b.textContent='Sure?';setTimeout(()=>{b.dataset.arm='';b.textContent='✕'},2500);return}
-  S.profiles=S.profiles.filter(p=>p.id!==b.dataset.x);if(S.pid===b.dataset.x)setProfile(S.profiles[0].id);else save();openProfiles()});
+ document.querySelectorAll('[data-d]').forEach(b=>b.onclick=e=>{e.stopPropagation();S.def=b.dataset.d;Object.keys(last).forEach(k=>delete last[k]);save();render();openProfiles()});
  $('#ap').onclick=()=>{const n=$('#np').value.trim();if(!n)return;const p={id:'p'+Date.now(),name:n,tasks:[]};S.profiles.push(p);setProfile(p.id);openProfiles()};
- document.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{S.def=b.dataset.d;Object.keys(last).forEach(k=>delete last[k]);save();render();openProfiles()});
  $('#pdn').onclick=closeSheet}
 let ZL=[];
 function zen(list,x){list.forEach(t=>{const o=ZL.find(z=>z.t.id===t.id);if(o)o.x=x||occOf(t);else ZL.push({t,x:x||occOf(t)})});drawZen();buzz(2)}
@@ -329,7 +370,7 @@ function applyTheme(){
  if(!S.mode)S.mode=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';
  const id=S.mode==='dark'?(S.dt||9):(S.lt||1),r=document.documentElement;
  TH[id-1].forEach((v,i)=>r.style.setProperty('--'+KEYS[i],v));
- r.dataset.theme=S.mode;r.style.colorScheme=S.mode}
+ r.dataset.theme=S.mode;r.style.colorScheme=S.mode;try{NudgeNative.lightBars(S.mode==='light')}catch(e){}}
 function toggleMode(){S.mode=S.mode==='dark'?'light':'dark';save();applyTheme()}
 function pickTheme(id){if(id>8){S.dt=id;S.mode='dark'}else{S.lt=id;S.mode='light'}save();applyTheme();
  document.querySelectorAll('.sq').forEach(x=>x.classList.toggle('on',+x.dataset.t===id))}
@@ -345,5 +386,7 @@ function openThemes(){
  tg.onclick=()=>{if(!fired)toggleMode()};
  tg.oncontextmenu=e=>e.preventDefault()}
 applyTheme();
+window.__ins=()=>{try{const[t,r,b,l,k]=NudgeNative.insets().split(',').map(Number),st=document.documentElement.style;st.setProperty('--sat',t+'px');st.setProperty('--sar',r+'px');st.setProperty('--sab',b+'px');st.setProperty('--sal',l+'px');st.setProperty('--kb',k+'px');NudgeNative.lightBars(S.mode==='light')}catch(e){}};
+window.__ins();[300,1200,3000].forEach(ms=>setTimeout(window.__ins,ms));addEventListener('resize',window.__ins);document.addEventListener('visibilitychange',()=>{if(!document.hidden)window.__ins()});
 settle();render();tick();setInterval(tick,1000);
 </script><script src="native.js"></script></body></html>
