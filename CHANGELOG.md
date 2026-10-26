@@ -8,6 +8,7 @@ All notable changes to Nudge, newest first.
 - The ⭐ Essential reminders of whichever profile is the default fire in all other profiles. If you change the default, the new default's essential reminders take over.
 - The default profile can't be deleted. Make another profile the default first.
 - New README with the motivation behind the app, install help and a troubleshooting note for Android's "package conflicts with an existing package" message.
+- Updates now install over the existing app, so no uninstall is needed. All builds share one signing key.
 
 ## v2.2.0: Essential reminders
 - Mark a reminder in the default profile as **⭐ Essential** and it keeps firing while any other profile is active.
