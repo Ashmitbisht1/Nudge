@@ -11,15 +11,42 @@ jobs:
         with: { distribution: temurin, java-version: 17 }
       - name: Put the app files in the www folder
         run: mkdir -p www && cp index.html native.js www/
-      - name: Use your signing key (kept as a private secret)
+      - name: Prepare your signing key
         env:
           KS: ${{ secrets.KEYSTORE_BASE64 }}
         run: |
-          if [ -n "$KS" ]; then
-            mkdir -p ~/.android && echo "$KS" | base64 -d > ~/.android/debug.keystore
-          else
-            echo "::warning::No KEYSTORE_BASE64 secret found, using a temporary key"
+          if [ -z "$KS" ]; then
+            echo "::error::The KEYSTORE_BASE64 secret is missing. Add it under Settings > Secrets and variables > Actions, otherwise new versions cannot install over the old app."
+            exit 1
           fi
+          echo "$KS" | base64 -d > "$PWD/nudge.keystore"
+          keytool -list -keystore "$PWD/nudge.keystore" -storepass android -alias androiddebugkey > /dev/null || { echo "::error::The KEYSTORE_BASE64 secret is not a valid signing key. Paste the whole line from signing-key-secret.txt."; exit 1; }
+          mkdir -p ~/.android && cp "$PWD/nudge.keystore" ~/.android/debug.keystore
+          echo "NUDGE_KS=$PWD/nudge.keystore" >> $GITHUB_ENV
+          echo "NUDGE_VC=$(( $(date +%s) / 60 ))" >> $GITHUB_ENV
+          echo "NUDGE_VN=$(node -p "require('./package.json').version")" >> $GITHUB_ENV
+          mkdir -p ~/.gradle/init.d
+          cat > ~/.gradle/init.d/nudge-signing.gradle <<'GRADLE'
+          allprojects { proj ->
+            proj.afterEvaluate {
+              if (proj.plugins.hasPlugin('com.android.application')) {
+                def ks = System.getenv('NUDGE_KS')
+                if (ks) {
+                  def sc = proj.android.signingConfigs.create('nudge')
+                  sc.storeFile = new File(ks)
+                  sc.storePassword = 'android'
+                  sc.keyAlias = 'androiddebugkey'
+                  sc.keyPassword = 'android'
+                  proj.android.buildTypes.getByName('debug').signingConfig = sc
+                }
+                def vc = System.getenv('NUDGE_VC')
+                if (vc) proj.android.defaultConfig.versionCode = vc.toInteger()
+                def vn = System.getenv('NUDGE_VN')
+                if (vn) proj.android.defaultConfig.versionName = vn
+              }
+            }
+          }
+          GRADLE
       - run: npm install
       - run: npx cap add android
       - name: App icon and full-screen layout
@@ -68,8 +95,18 @@ jobs:
             echo "::warning::Build with the optional patches failed, retrying without them"
             if [ -n "$patched" ]; then cp "$patched.orig" "$patched"; fi
             if [ -n "$mainact" ]; then cp "$mainact.orig" "$mainact"; fi
-            ./gradlew assembleDebug
+            ./gradlew assembleDebug || {
+              echo "::warning::Build with the custom signing setup failed, retrying with the default one"
+              rm -f ~/.gradle/init.d/nudge-signing.gradle
+              ./gradlew assembleDebug
+            }
           }
+      - name: Show the signing fingerprint
+        continue-on-error: true
+        run: |
+          APK=android/app/build/outputs/apk/debug/app-debug.apk
+          AS=$(ls $ANDROID_HOME/build-tools/*/apksigner | sort -V | tail -1)
+          "$AS" verify --print-certs "$APK" | grep -i "SHA-256" | tee -a "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v4
         with:
           name: Nudge-apk
