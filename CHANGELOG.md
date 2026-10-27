@@ -5,7 +5,7 @@ All notable changes to Nudge, newest first.
 ## v2.4.1: Updates keep your data
 - **Fixed an update problem.** Installing a new version could fail with "App not installed as package conflicts with an existing package". Builds now always sign with your own key, and stop with a clear error instead of quietly using a temporary one. Each build also carries a higher version number than the last, so Android always treats a new build as an update, and the signing fingerprint is printed in every build summary so you can check it.
 - **Your data stays with you.** Reminders, profiles and history now stay in place every time a new version arrives. If your phone still has an older build signed with a different key, uninstall it once and install this version. Every update after that installs over the top.
-- The "Sleeping / I'm awake" card is a little smaller, and its subtitle is shorter so the button no longer wraps onto two lines.
+- The "Sleeping / I'm awake" card is a little smaller, and its subtitle is shorter so the button no longer wraps onto two lines giving a cleaner look.
 
 ## v2.4.0: Swipe to delete, new logo, full-screen layout
 - **New app icon:** a double-layered flame.
