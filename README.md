@@ -52,7 +52,7 @@ It grew only in ways that serve that idea:
 3. Open Nudge and tap **Allow** when it asks to show notifications.
 4. Optional: if reminders arrive late on Xiaomi, Oppo, Vivo or Samsung phones, set *Settings → Apps → Nudge → Battery* to **Unrestricted**.
 
-**Updating:** install the new APK over the old one and your reminders and history are kept. If Android says *"App not installed as package conflicts with an existing package"*, the installed copy was signed with a different key. Uninstall Nudge once, then install the new APK. Saved reminders are erased by the uninstall, and later updates install in place.
+**Updating:** install the new APK over the old one and your reminders, profiles and history are kept. Every release is signed with the same key, so each update is recognised as an update. If Android says *"App not installed as package conflicts with an existing package"*, the copy on your phone was signed with a different key (this only affects builds from before v2.4.1). Uninstall Nudge once, then install the new APK. The uninstall erases saved reminders, and every update after that installs in place.
 
 ## Permissions and privacy
 
@@ -77,7 +77,7 @@ Nudge is a single web page (`index.html`) wrapped as an Android app with [Capaci
 
 1. Put `index.html`, `native.js`, `package.json`, `capacitor.config.json`, `MainActivity.java`, `icons.zip` and `icon.png` in your repository.
 2. Add `build-apk-workflow.txt` as `.github/workflows/build-apk.yml`.
-3. Create a signing key once and store it as a secret named `KEYSTORE_BASE64` (*Settings → Secrets and variables → Actions*). Keep the key file out of the repository. Keeping the same key lets new versions install over old ones.
+3. Create a signing key once and store it as a secret named `KEYSTORE_BASE64` (*Settings → Secrets and variables → Actions*). Keep the key file out of the repository. Keeping the same key lets new versions install over old ones. The build stops with a clear error if the secret is missing, and every run prints the signing fingerprint in its summary, which should be identical from run to run.
 4. Open the *Actions* tab. After about 5 minutes, download the APK from the finished run.
 
 See the [changelog](CHANGELOG.md) for the full version history.

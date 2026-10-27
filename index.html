@@ -88,7 +88,7 @@ input[type=text],input[type=time],input[type=number]{width:100%;font:inherit;col
 .toast .li{display:flex;gap:10px;align-items:center;padding:8px 2px;cursor:pointer}
 .toast .li span:first-child{font-size:20px}
 .eos{display:flex;gap:6px}.eos button{border:0;background:transparent;font-size:34px;padding:0 2px}
-.awake{padding:20px;border-radius:22px}.awake b{font-size:19px;margin-bottom:2px}.awake small{font-size:14px}#wk{padding:14px 22px;font-size:16px;border-radius:14px}
+.awake{padding:15px 18px;border-radius:20px}.awake b{font-size:17px}.awake small{font-size:13px}#wk{padding:11px 18px;font-size:15px;border-radius:13px;white-space:nowrap}
 .dd{max-height:230px;overflow-y:auto}
 .swrow{position:relative;margin-bottom:12px;border-radius:18px;overflow:hidden}
 .swrow>:not(.bin){position:relative;z-index:1;touch-action:pan-y;transition:transform .2s}
@@ -203,7 +203,7 @@ function render(){
  const nm=S.profile.name?', '+esc(S.profile.name):'';
  $('#app').innerHTML=`
  <div class="top"><div><h1>${g}${nm}</h1><p>Gentle nudges, only when you want them.</p></div><button class="av" id="prof">${S.profile.emoji}</button></div>
- <div class="card awake"><div><b>${S.awake?'You’re awake ☀️':'Sleeping 🌙'}</b><small>${S.awake?'Since '+new Date(S.awake).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'}):'Wake-based reminders are paused'}</small></div><button class="btn" id="wk">${S.awake?'Go to sleep':'I’m awake'}</button></div>
+ <div class="card awake"><div><b>${S.awake?'You’re awake ☀️':'Sleeping 🌙'}</b><small>${S.awake?'Since '+new Date(S.awake).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'}):'Awake reminders paused'}</small></div><button class="btn" id="wk">${S.awake?'Go to sleep':'I’m awake'}</button></div>
  <div class="sec"><h2>Your reminders</h2><button class="btn pfb" id="pf">📂 ${esc(prof(S.pid).name)} ▾</button></div>
  ${S.tasks.length?S.tasks.map(t=>`<div class="card task ${t.on?'':'off'}" data-id="${t.id}"><div class="ic">${t.emoji||'🔔'}</div><div class="tx"><b>${t.ess&&own(t.id)===defP()?'⭐ ':''}${esc(t.title)}</b><small>Every ${ivTxt(t.iv)} · ${t.mode==='wake'?'while awake':f12(t.start)+'–'+f12(t.end)}</small><small data-next="${t.id}">${nextLabel(t)}</small></div><button class="sw ${t.on?'on':''}" data-sw="${t.id}" aria-label="Toggle"></button></div>`).join(''):'<div class="empty">No reminders yet. Tap “New reminder” to add one.</div>'}
  ${ess().length?`<div class="sec"><h2>⭐ Essential</h2><span class="hint">From ${esc(defP().name)}</span></div>${ess().map(card).join('')}`:''}
